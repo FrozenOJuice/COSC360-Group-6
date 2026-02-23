@@ -1,0 +1,39 @@
+.box1 {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #e8e8e8;
+    border-radius: 10px;
+    padding: 14px 16px;
+    max-width: 500px;
+    font-family: sans-serif;
+}
+
+.box2 {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #c8c8c8;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pfp {
+    width: 50px;
+    height: 50px;
+}
+
+.name {
+    color: #000000;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+    text-decoration: underline;
+}
+
+.comment {
+    font-size: 14px;
+    color: #333;
+}

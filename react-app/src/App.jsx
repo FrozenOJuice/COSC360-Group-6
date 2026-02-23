@@ -1,4 +1,5 @@
-import './App.css'
+
+import JobCard from "./components/JobCard.jsx";
 
 function App() {
   return (
