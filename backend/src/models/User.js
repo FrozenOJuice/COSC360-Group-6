@@ -29,6 +29,11 @@ const userSchema = new mongoose.Schema({
         match: passwordRules.match,
         select: false,
     },
+    refreshTokenHash: {
+        type: String,
+        default: null,
+        select: false,
+    },
     role: {
         type: String,
         enum: ["seeker", "employer", "admin"],
