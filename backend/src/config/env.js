@@ -6,6 +6,7 @@ const required = [
     "PORT",
     "NODE_ENV",
     "MONGO_URI",
+    "BCRYPT_SALT_ROUNDS",
 ]
 
 for (const key of required) {
@@ -18,4 +19,5 @@ export const config = Object.freeze({
     PORT: process.env.PORT,
     NODE_ENV: process.env.NODE_ENV,
     MONGO_URI: process.env.MONGO_URI,
+    BCRYPT_SALT_ROUNDS: parseInt(process.env.BCRYPT_SALT_ROUNDS, 10),
 });
