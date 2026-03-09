@@ -1,7 +1,7 @@
 import "../styles/Navbar.css"
 
 function Navbar({ role }) {
-    const browseButtonText = (role=="employer") ? "View Listing" : "Browse Jobs" 
+    const browseButtonText = (role=="employer") ? "View Listing" : "Browse Jobs";
 
     const handleRedirect = (page) => {
         // Redirect to page
