@@ -1,0 +1,10 @@
+[
+  { "title": "Frontend Developer", "company": "Google" },
+  { "title": "Backend Developer", "company": "Amazon" },
+  { "title": "Software Engineer", "company": "Microsoft" },
+  { "title": "Data Scientist", "company": "Meta" },
+  { "title": "AI Engineer", "company": "OpenAI" },
+  { "title": "DevOps Engineer", "company": "Netflix" },
+  { "title": "Mobile Developer", "company": "Apple" },
+  { "title": "Game Developer", "company": "Valve" }
+]

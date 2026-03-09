@@ -1,39 +1,55 @@
-import { useState } from "react"; //component can store and update state values
+import { useState } from "react";
 
 function SearchBar() {
-  const [searchData, setSearchData] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [results, setResults] = useState([]);
+  const [hasSearched, setHasSearched] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
 
-    // request sent to server
-    // await pauses this function until the server responds.
-    const response = await fetch("http://localhost:3000/search", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ //convert form data into JSON text
-        searchData: searchData,
-      })
-    }); 
+    const response = await fetch(
+      `http://localhost:3000/search?q=${encodeURIComponent(searchTerm)}`,
+      {
+        method: "GET",
+      }
+    );
 
-    const data = await response.json();//await pauses until response conversion to 
+    const data = await response.json();
+    setResults(data);
+    setHasSearched(true);
+    setSearchTerm("");
   }
 
   return (
     <div style={{ margin: "20px 0" }}>
-      <input
-        type="text"
-        placeholder="Search..."
-        style={{
-          padding: "10px",
-          width: "300px",
-          borderRadius: "6px",
-          border: "1px solid #ccc",
-        }}
-      />
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Search jobs..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            padding: "10px",
+            width: "300px",
+            borderRadius: "6px",
+            border: "1px solid #ccc",
+          }}
+        />
+        <button type="submit" style={{ marginLeft: "10px" }}>
+          Search
+        </button>
+      </form>
+
+      {results.map((item, index) => (
+        <div key={`${item.title}-${item.company}-${index}`} style={{ marginTop: "10px" }}>
+          {item.title} - {item.company}
+        </div>
+      ))}
+
+      {hasSearched && results.length === 0 && (
+        <p style={{ marginTop: "10px" }}>No results found</p>
+      )}
     </div>
   );
 }

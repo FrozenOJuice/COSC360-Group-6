@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import authRouter from "./routers/authRouter.js";
+import searchData from "./data/searchData.json" with { type: "json" };
 
 import { notFound } from "./middleware/notFound.js";
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -22,6 +23,17 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+
+app.get("/search", (req, res) => {
+    const term = (req.query.q || "").trim().toLowerCase();
+
+    const results = searchData.filter((item) => (
+        item.title.toLowerCase().includes(term) ||
+        item.company.toLowerCase().includes(term)
+    ));
+
+    res.status(200).json(results);
+});
 
 app.post("/login", (req,res)=>{
     console.log("HIT /login", req.body);
