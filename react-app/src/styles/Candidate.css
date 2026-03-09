@@ -1,0 +1,39 @@
+.candBox1 {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #e8e8e8;
+    border-radius: 10px;
+    padding: 14px 16px;
+    max-width: 800px;
+    font-family: sans-serif;
+}
+
+.candBox2 {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #c8c8c8;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.candPfp {
+    width: 100px;
+    height: 100px;
+}
+
+.name {
+    color: #000000;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+    text-decoration: underline;
+}
+
+.candidateBio {
+    font-size: 14px;
+    color: #333;
+}

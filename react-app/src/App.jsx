@@ -2,6 +2,7 @@ import Navbar from './components/Navbar';
 import SearchBar from './components/SearchBar';
 import JobCard from './components/JobCard';
 import Comment from './components/Comment';
+import Candidate from './components/Candidate';
 import LoginForm from './components/LoginForm'
 
 function App() {
@@ -24,6 +25,11 @@ function App() {
       
       <Comment/>
 
+      <br/>
+
+      <Candidate/>
+    
+      <br/>
       <LoginForm/>
 
       <SearchBar/>
