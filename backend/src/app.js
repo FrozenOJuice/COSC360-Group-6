@@ -12,6 +12,14 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
 
+app.post("/submit", (req, res) => {
+  const { name, role } = req.body;
+
+  res.json({
+    message: `Received ${name} with role ${role}`
+  });
+});
+
 app.use(notFound);
 app.use(errorHandler);
 
