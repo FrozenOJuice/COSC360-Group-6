@@ -10,17 +10,16 @@ export function buildApiUrl(path) {
   return `${API_BASE_URL}${path}`;
 }
 
-async function fetchWithCredentials(path, options = {}) {
+export async function apiRequest(path, options = {}) {
   return fetch(buildApiUrl(path), {
     credentials: "include",
     ...options,
   });
 }
 
-export async function refreshSession() {
+export async function requestSessionRefresh() {
   if (!refreshPromise) {
-    window.alert("Calling /api/auth/refresh");
-    refreshPromise = fetchWithCredentials("/api/auth/refresh", {
+    refreshPromise = apiRequest("/api/auth/refresh", {
       method: "POST",
     }).finally(() => {
       refreshPromise = null;
@@ -31,16 +30,16 @@ export async function refreshSession() {
 }
 
 export async function apiFetch(path, options = {}, allowRetry = true) {
-  const response = await fetchWithCredentials(path, options);
+  const response = await apiRequest(path, options);
 
   if (response.status !== 401 || !allowRetry || path === "/api/auth/refresh") {
     return response;
   }
 
-  const refreshResponse = await refreshSession();
+  const refreshResponse = await requestSessionRefresh();
   if (!refreshResponse.ok) {
     return response;
   }
 
-  return fetchWithCredentials(path, options);
+  return apiRequest(path, options);
 }

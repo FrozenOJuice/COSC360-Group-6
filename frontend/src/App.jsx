@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "./auth/useAuth";
 import Navbar from "./components/Navbar";
 import EmployerPage from "./pages/EmployerPage";
 import HomePage from "./pages/HomePage";
 import JobSeekerPage from "./pages/JobSeekerPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import { apiFetch } from "./lib/api";
 import {
   getCurrentPage,
   getLandingHash,
@@ -15,43 +15,13 @@ import "./styles/App.css";
 
 function App() {
   const [hash, setHash] = useState(() => window.location.hash);
-  const [authUser, setAuthUser] = useState(null);
-  const [authResolved, setAuthResolved] = useState(false);
+  const { loading: authLoading, user: authUser } = useAuth();
 
   useEffect(() => {
     const handleHashChange = () => setHash(window.location.hash);
 
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function syncSession() {
-      try {
-        const response = await apiFetch("/api/auth/me", {
-          method: "GET",
-        });
-        const data = await response.json();
-
-        if (cancelled) return;
-        setAuthUser(response.ok ? data.user : null);
-      } catch (error) {
-        if (!cancelled) {
-          setAuthUser(null);
-        }
-      } finally {
-        if (!cancelled) {
-          setAuthResolved(true);
-        }
-      }
-    }
-
-    syncSession();
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
   const currentPage = getCurrentPage(hash);
@@ -63,36 +33,7 @@ function App() {
       : "public";
 
   useEffect(() => {
-    if (!authResolved || !requiredRole) {
-      return;
-    }
-
-    let cancelled = false;
-
-    async function validateProtectedSession() {
-      try {
-        const response = await apiFetch("/api/auth/me", {
-          method: "GET",
-        });
-        const data = await response.json();
-
-        if (cancelled) return;
-        setAuthUser(response.ok ? data.user : null);
-      } catch (error) {
-        if (!cancelled) {
-          setAuthUser(null);
-        }
-      }
-    }
-
-    validateProtectedSession();
-    return () => {
-      cancelled = true;
-    };
-  }, [authResolved, currentPage, requiredRole]);
-
-  useEffect(() => {
-    if (!authResolved) return;
+    if (authLoading) return;
 
     if (requiredRole) {
       if (!authUser) {
@@ -117,33 +58,21 @@ function App() {
         window.location.hash = landingHash;
       }
     }
-  }, [authResolved, authUser, currentPage, requiredRole]);
-
-  function handleAuthSuccess(user) {
-    setAuthUser(user);
-    setAuthResolved(true);
-    window.location.hash = getLandingHash(user.role);
-  }
-
-  function handleLogout() {
-    setAuthUser(null);
-    setAuthResolved(true);
-    window.location.hash = "#top";
-  }
+  }, [authLoading, authUser, currentPage, requiredRole]);
 
   const shouldShowProtectedPage =
-    authResolved && authUser && (!requiredRole || authUser.role === requiredRole);
+    !authLoading && authUser && (!requiredRole || authUser.role === requiredRole);
 
   return (
     <div className="app-shell">
-      <Navbar variant={navbarVariant} onLogout={handleLogout} />
-      {!authResolved && requiredRole ? (
+      <Navbar variant={navbarVariant} />
+      {authLoading && requiredRole ? (
         <main className="page-status">Checking session...</main>
       ) : null}
       {currentPage === "employer" && shouldShowProtectedPage ? <EmployerPage /> : null}
       {currentPage === "jobSeeker" && shouldShowProtectedPage ? <JobSeekerPage /> : null}
-      {currentPage === "login" ? <LoginPage onAuthSuccess={handleAuthSuccess} /> : null}
-      {currentPage === "register" ? <RegisterPage onAuthSuccess={handleAuthSuccess} /> : null}
+      {currentPage === "login" ? <LoginPage /> : null}
+      {currentPage === "register" ? <RegisterPage /> : null}
       {currentPage === "home" ? <HomePage /> : null}
     </div>
   );

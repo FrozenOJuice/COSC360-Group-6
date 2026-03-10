@@ -1,7 +1,7 @@
 import LoginForm from "../components/forms/LoginForm";
 import "../styles/AuthPage.css";
 
-function LoginPage({ onAuthSuccess }) {
+function LoginPage() {
   return (
     <main className="auth-page">
       <section className="auth-page-copy">
@@ -22,7 +22,7 @@ function LoginPage({ onAuthSuccess }) {
         </div>
       </section>
 
-      <LoginForm onAuthSuccess={onAuthSuccess} />
+      <LoginForm />
     </main>
   );
 }

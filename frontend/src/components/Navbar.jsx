@@ -1,4 +1,4 @@
-import { apiFetch, buildApiUrl } from "../lib/api";
+import { useAuth } from "../auth/useAuth";
 import "../styles/Navbar.css";
 
 const NAV_BY_VARIANT = {
@@ -22,48 +22,39 @@ const NAV_BY_VARIANT = {
     ],
 };
 
-function Navbar({ variant = "public", onLogout }) {
-    const links = NAV_BY_VARIANT[variant] || NAV_BY_VARIANT.public;
-    const brandHref = variant === "jobSeeker"
-        ? "#job-seeker"
-        : variant === "employer"
-            ? "#employer"
-            : "#top";
+function Navbar({ variant = "public" }) {
+  const { loading, logout, syncSession } = useAuth();
+  const links = NAV_BY_VARIANT[variant] || NAV_BY_VARIANT.public;
+  const brandHref = variant === "jobSeeker"
+    ? "#job-seeker"
+    : variant === "employer"
+      ? "#employer"
+      : "#top";
 
-    async function handleMe() {
-        try {
-            const response = await apiFetch("/api/auth/me", {
-                method: "GET",
-            });
+  async function handleMe() {
+    const { data, ok } = await syncSession();
 
-            const data = await response.json();
-            window.alert(JSON.stringify({
-                status: response.status,
-                ...data,
-            }, null, 2));
-        } catch (error) {
-            window.alert("Could not connect to /api/auth/me");
-        }
+    if (!ok) {
+      window.alert(data.message || "Could not load the current session");
+      return;
     }
 
-    async function handleLogout() {
-        try {
-            const response = await fetch(buildApiUrl("/api/auth/logout"), {
-                method: "POST",
-                credentials: "include",
-            });
+    window.alert(JSON.stringify({
+      status: 200,
+      user: data.user ?? null,
+    }, null, 2));
+  }
 
-            const data = await response.json();
-            if (!response.ok) {
-                window.alert(data.message || "Could not log out");
-                return;
-            }
+  async function handleLogout() {
+    const { data, ok } = await logout();
 
-            onLogout?.();
-        } catch (error) {
-            window.alert("Could not connect to /api/auth/logout");
-        }
+    if (!ok) {
+      window.alert(data.message || "Could not log out");
+      return;
     }
+
+    window.location.hash = "#top";
+  }
 
   return (
     <header className="navbar">
@@ -79,6 +70,7 @@ function Navbar({ variant = "public", onLogout }) {
                         type="button"
                         onClick={link.action === "me" ? handleMe : handleLogout}
                         className={`navbar-button${link.muted ? " navbar-button-muted" : ""}`}
+                        disabled={loading}
                     >
                         {link.label}
                     </button>
