@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { getLandingHash } from "../../lib/authRoutes";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
-function RegisterForm() {
+function RegisterForm({ onAuthSuccess }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -62,7 +61,7 @@ function RegisterForm() {
         password: "",
         role: "seeker",
       });
-      window.location.hash = getLandingHash(data.user.role);
+      onAuthSuccess?.(data.user);
     } catch (error) {
       setStatus({
         type: "error",

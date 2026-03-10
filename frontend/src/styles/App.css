@@ -16,6 +16,14 @@ body {
   min-height: 100vh;
 }
 
+.page-status {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 56px 24px;
+  font-size: 1rem;
+  color: #4e5d74;
+}
+
 .landing-page {
   max-width: 1120px;
   margin: 0 auto;

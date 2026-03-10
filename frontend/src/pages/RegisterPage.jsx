@@ -1,7 +1,7 @@
 import RegisterForm from "../components/forms/RegisterForm";
 import "../styles/AuthPage.css";
 
-function RegisterPage() {
+function RegisterPage({ onAuthSuccess }) {
   return (
     <main className="auth-page">
       <section className="auth-page-copy">
@@ -22,7 +22,7 @@ function RegisterPage() {
         </div>
       </section>
 
-      <RegisterForm />
+      <RegisterForm onAuthSuccess={onAuthSuccess} />
     </main>
   );
 }
