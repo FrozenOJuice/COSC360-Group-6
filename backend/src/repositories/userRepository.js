@@ -28,6 +28,10 @@ export async function findById(userId, options = {}) {
     return query.exec();
 }
 
+export async function listUsers(filters = {}) {
+    return User.find(filters).exec();
+}
+
 export async function createUser(userData) {
     return User.create(userData);
 }
@@ -51,5 +55,16 @@ export async function clearRefreshTokenHash(userId) {
         userId,
         { refreshTokenHash: null },
         { new: true }
+    );
+}
+
+export async function updateUserStatus(userId, status) {
+    return User.findByIdAndUpdate(
+        userId,
+        { status },
+        {
+            new: true,
+            runValidators: true,
+        }
     );
 }

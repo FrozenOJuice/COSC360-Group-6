@@ -39,6 +39,11 @@ const userSchema = new mongoose.Schema({
         enum: ["seeker", "employer", "admin"],
         default: "seeker",
     },
+    status: {
+        type: String,
+        enum: ["active", "disabled"],
+        default: "active",
+    },
 });
 
 userSchema.pre("save", async function () {

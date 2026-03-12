@@ -56,6 +56,10 @@ export async function loginUser(payload) {
         throw appError("INVALID_CREDENTIALS", "Invalid email or password");
     }
 
+    if (user.status === "disabled") {
+        throw appError("ACCOUNT_DISABLED", "This account has been disabled");
+    }
+
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
         throw appError("INVALID_CREDENTIALS", "Invalid email or password");
@@ -82,7 +86,16 @@ export async function refreshSession(refreshToken) {
     const decoded = verifyRefreshToken(refreshToken);
     const user = await findById(decoded.sub, { includeRefreshTokenHash: true });
 
-    if (!user || !user.refreshTokenHash) {
+    if (!user) {
+        throw appError("INVALID_REFRESH_TOKEN", "Refresh token is invalid or expired");
+    }
+
+    if (user.status === "disabled") {
+        await clearRefreshTokenHash(user.id);
+        throw appError("ACCOUNT_DISABLED", "This account has been disabled");
+    }
+
+    if (!user.refreshTokenHash) {
         throw appError("INVALID_REFRESH_TOKEN", "Refresh token is invalid or expired");
     }
 
