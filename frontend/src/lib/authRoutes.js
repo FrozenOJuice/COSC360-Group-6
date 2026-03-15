@@ -2,6 +2,7 @@ export function getCurrentPage(hash) {
   if (hash === "#login") return "login";
   if (hash.startsWith("#admin")) return "admin";
   if (hash.startsWith("#employer")) return "employer";
+  if (hash.startsWith("#job-seeker-profile")) return "jobSeekerProfile";
   if (hash.startsWith("#job-seeker")) return "jobSeeker";
   return hash === "#register" ? "register" : "home";
 }
@@ -13,8 +14,8 @@ export function getLandingHash(role) {
 }
 
 export function getRequiredRoleForPage(page) {
-  if (page === "admin") return "admin";
-  if (page === "employer") return "employer";
-  if (page === "jobSeeker") return "seeker";
+  if (page.startsWith("admin")) return "admin";
+  if (page.startsWith("employer")) return "employer";
+  if (page.startsWith("jobSeeker")) return "seeker";
   return null;
 }
