@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import EmployerPage from "./pages/EmployerPage";
 import HomePage from "./pages/HomePage";
 import JobSeekerPage from "./pages/JobSeekerPage";
+import JobSeekerProfilePage from "./pages/JobSeekerProfilePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import {
@@ -27,11 +28,11 @@ function App() {
 
   const currentPage = getCurrentPage(hash);
   const requiredRole = getRequiredRoleForPage(currentPage);
-  const navbarVariant = currentPage === "admin" && authUser?.role === "admin"
+  const navbarVariant = requiredRole === "admin" && authUser?.role === "admin"
     ? "admin"
-    : currentPage === "jobSeeker" && authUser?.role === "seeker"
+    : requiredRole === "seeker" && authUser?.role === "seeker"
       ? "jobSeeker"
-      : currentPage === "employer" && authUser?.role === "employer"
+      : requiredRole === "employer" && authUser?.role === "employer"
         ? "employer"
         : "public";
 
@@ -75,6 +76,7 @@ function App() {
       {currentPage === "admin" && shouldShowProtectedPage ? <AdminPage /> : null}
       {currentPage === "employer" && shouldShowProtectedPage ? <EmployerPage /> : null}
       {currentPage === "jobSeeker" && shouldShowProtectedPage ? <JobSeekerPage /> : null}
+      {currentPage === "jobSeekerProfile" && shouldShowProtectedPage ? <JobSeekerProfilePage /> : null}
       {currentPage === "login" ? <LoginPage /> : null}
       {currentPage === "register" ? <RegisterPage /> : null}
       {currentPage === "home" ? <HomePage /> : null}

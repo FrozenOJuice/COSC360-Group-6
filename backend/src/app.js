@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import adminRouter from "./routers/adminRouter.js";
 import authRouter from "./routers/authRouter.js";
+import profileRouter from "./routers/profileRouter.js";
 
 import { notFound } from "./middleware/notFound.js";
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -24,6 +25,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/profile", profileRouter);
 
 app.use(notFound);
 app.use(errorHandler);
