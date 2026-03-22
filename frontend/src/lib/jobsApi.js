@@ -1,4 +1,4 @@
-import { buildQueryString, requestJson } from "./api";
+import { buildQueryString, mapResultData, requestJson } from "./api";
 
 export async function fetchJobs(query = {}) {
   return requestJson(`/api/jobs${buildQueryString(query)}`, {
@@ -9,11 +9,13 @@ export async function fetchJobs(query = {}) {
 }
 
 export async function fetchJobById(jobId) {
-  return requestJson(`/api/jobs/${jobId}`, {
+  const result = await requestJson(`/api/jobs/${jobId}`, {
     method: "GET",
   }, {
     fallbackMessage: "Could not load this job.",
   });
+
+  return mapResultData(result, (data) => data?.job ?? null);
 }
 
 export async function fetchJobOptions() {

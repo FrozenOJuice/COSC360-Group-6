@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../auth/useAuth";
+import { routePaths } from "../../routing/routes";
 
 function LoginForm() {
   const { login } = useAuth();
@@ -106,7 +108,7 @@ function LoginForm() {
       </button>
 
       <p className="auth-form-helper">
-        Need an account? <a href="#register">Register here</a>.
+        Need an account? <Link to={routePaths.register}>Register here</Link>.
       </p>
     </form>
   );

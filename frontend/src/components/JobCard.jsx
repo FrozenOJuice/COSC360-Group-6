@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+import { getJobDetailsPath } from "../routing/routes";
 import "../styles/JobCard.css";
 
 function formatSalary(value, currency) {
@@ -26,7 +28,7 @@ function JobCard({
   const salaryLabel = typeof salary === "number"
     ? formatSalary(salary, currency)
     : salary;
-  const actionHref = jobId ? `#jobs/${jobId}` : "";
+  const actionHref = jobId ? getJobDetailsPath(jobId) : "";
 
   const cardContent = (
     <>
@@ -46,9 +48,9 @@ function JobCard({
   );
 
   return actionHref ? (
-    <a className="job-card job-card-link" href={actionHref}>
+    <Link className="job-card job-card-link" to={actionHref}>
       {cardContent}
-    </a>
+    </Link>
   ) : (
     <div className="job-card">
       {cardContent}

@@ -9,6 +9,7 @@ import seekerProfileRouter from "./routers/seekerProfileRouter.js";
 
 import { notFound } from "./middleware/notFound.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import { sendSuccess } from "./utils/apiResponse.js";
 
 const app = express();
 
@@ -22,7 +23,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.get("/", (req, res) => {
-    res.status(200).json({ message: "API is running" });
+    sendSuccess(res, { message: "API is running" });
 });
 
 app.use("/api/auth", authRouter);

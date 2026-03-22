@@ -1,4 +1,6 @@
+import { Link } from "react-router-dom";
 import AdminUsersPanel from "../components/admin/AdminUsersPanel";
+import { routePaths, withHash } from "../routing/routes";
 import "../styles/AdminPage.css";
 
 function AdminPage() {
@@ -15,12 +17,18 @@ function AdminPage() {
           </p>
 
           <div className="hero-actions">
-            <a className="hero-button hero-button-primary" href="#admin-users">
+            <Link
+              className="hero-button hero-button-primary"
+              to={withHash(routePaths.admin, "admin-users")}
+            >
               Manage Users
-            </a>
-            <a className="hero-button hero-button-secondary" href="#admin-overview">
+            </Link>
+            <Link
+              className="hero-button hero-button-secondary"
+              to={withHash(routePaths.admin, "admin-overview")}
+            >
               Current Scope
-            </a>
+            </Link>
           </div>
         </div>
 

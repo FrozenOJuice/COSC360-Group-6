@@ -1,31 +1,14 @@
 import {
+    toSeekerProfileDto,
+} from "../dto/profileDto.js";
+import {
     clearSeekerProfilePicture,
     createSeekerProfile,
     findSeekerProfileByUserId,
     setSeekerProfilePicture,
     updateSeekerProfile,
 } from "../repositories/seekerProfileRepository.js";
-import { buildProfileAssetUrl, createBaseProfilePayload, normalizeOptionalString, normalizeStringArray, } from "./profilePresentation.js";
 import { createProfileService } from "./profileServiceFactory.js";
-
-function normalizeSeekerProfile(profile) {
-    return {
-        ...createBaseProfilePayload(profile),
-        bio: normalizeOptionalString(profile.bio),
-        jobExperience: normalizeStringArray(profile.jobExperience),
-        education: normalizeStringArray(profile.education),
-        currentPosition: normalizeOptionalString(profile.currentPosition),
-        profilePicture: buildProfileAssetUrl({
-            profile,
-            hasUploadedAsset: profile.hasUploadedProfilePicture,
-            assetPath: (ownerId) => `/api/seeker-profile/${ownerId}/picture`,
-        }),
-        phone: normalizeOptionalString(profile.phone),
-        resumeLink: typeof profile.resumeLink === "string" && profile.resumeLink
-            ? profile.resumeLink
-            : "#",
-    };
-}
 
 export async function createInitialSeekerProfile(userId, options = {}) {
     return createSeekerProfile({
@@ -40,7 +23,7 @@ const seekerProfileService = createProfileService({
     mediaContentTypeField: "profilePictureContentType",
     mediaDataField: "profilePictureData",
     mediaNotFoundMessage: "Profile picture not found",
-    normalizeProfile: normalizeSeekerProfile,
+    normalizeProfile: toSeekerProfileDto,
     profileNotFoundMessage: "Profile not found",
     setProfileMedia: setSeekerProfilePicture,
     updateProfile: updateSeekerProfile,

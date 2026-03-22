@@ -5,21 +5,12 @@ import {
     listUsers,
     updateUserStatus,
 } from "../repositories/userRepository.js";
+import { toUserDto } from "../dto/userDto.js";
 import { escapeRegex, toPositiveInt } from "./queryUtils.js";
 import { appError } from "../utils/appError.js";
 
 const USER_STATUSES = new Set(["active", "disabled"]);
 const SORT_FIELDS = new Set(["name", "email", "role", "status"]);
-
-function normalizeUser(user) {
-    return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        status: user.status,
-    };
-}
 
 function buildUserFilters(options = {}) {
     const filters = {};
@@ -64,7 +55,7 @@ export async function listAdminUsers(options = {}) {
     ]);
 
     return {
-        users: users.map(normalizeUser),
+        users: users.map(toUserDto),
         pagination: {
             page,
             limit,
@@ -94,7 +85,7 @@ export async function getManagedUser(userId) {
     }
 
     return {
-        user: normalizeUser(user),
+        user: toUserDto(user),
     };
 }
 
@@ -123,7 +114,7 @@ export async function setManagedUserStatus({ userId, status }) {
             await clearRefreshTokenHash(user.id);
         }
 
-        return { user: normalizeUser(user) };
+        return { user: toUserDto(user) };
     }
 
     const updatedUser = await updateUserStatus(user.id, nextStatus);
@@ -136,6 +127,6 @@ export async function setManagedUserStatus({ userId, status }) {
     }
 
     return {
-        user: normalizeUser(updatedUser),
+        user: toUserDto(updatedUser),
     };
 }

@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+import { routePaths } from "../routing/routes";
 import "../styles/EmployerPage.css";
 
 function EmployerPage() {
@@ -14,12 +16,12 @@ function EmployerPage() {
           </p>
 
           <div className="hero-actions">
-            <a className="hero-button hero-button-primary" href="#jobs">
+            <Link className="hero-button hero-button-primary" to={routePaths.jobs}>
               Browse All Jobs
-            </a>
-            <a className="hero-button hero-button-secondary" href="#employer-profile">
+            </Link>
+            <Link className="hero-button hero-button-secondary" to={routePaths.employerProfile}>
               View Company Profile
-            </a>
+            </Link>
           </div>
         </div>
 

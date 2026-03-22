@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import JobCard from "../components/JobCard";
 import { fetchJobs } from "../lib/jobsApi";
+import { routePaths } from "../routing/routes";
 import "../styles/JobSeekerPage.css";
 
 function JobSeekerPage() {
@@ -62,9 +64,9 @@ function JobSeekerPage() {
           </p>
 
           <div className="hero-actions">
-            <a className="hero-button hero-button-primary" href="#jobs">
+            <Link className="hero-button hero-button-primary" to={routePaths.jobs}>
               Browse All Jobs
-            </a>
+            </Link>
           </div>
         </div>
 

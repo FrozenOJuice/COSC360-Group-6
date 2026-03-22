@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import { fetchAdminUserById } from "../lib/adminApi";
 import { getEmployerProfileByUserId } from "../lib/employerProfileApi";
 import { resolveProfileAssetUrl } from "../lib/profileAssetUrl";
 import { getSeekerProfileByUserId } from "../lib/seekerProfileApi";
+import { routePaths, withHash } from "../routing/routes";
 import "../styles/ProfilePage.css";
 
-function AdminProfilePage({ profileRole, userId }) {
+function AdminProfilePage({ profileRole: profileRoleProp, userId: userIdProp }) {
+  const params = useParams();
+  const profileRole = profileRoleProp ?? params.profileRole;
+  const userId = userIdProp ?? params.userId;
   const hasProfileParams = Boolean(profileRole && userId);
   const requestKey = hasProfileParams ? `${profileRole}:${userId}` : "";
   const [profile, setProfile] = useState(null);
@@ -37,7 +42,7 @@ function AdminProfilePage({ profileRole, userId }) {
           }
 
           setProfile(profileResponse.data);
-          setManagedUser(userResponse.data?.user || null);
+          setManagedUser(userResponse.data ?? null);
           setError("");
           setLoadedRequestKey(requestKey);
         }
@@ -91,9 +96,12 @@ function AdminProfilePage({ profileRole, userId }) {
               <p className="profile-admin-copy">Admin read-only view</p>
             </div>
             <div className="profile-actions">
-              <a className="profile-button profile-link" href="#admin-users">
+              <Link
+                className="profile-button profile-link"
+                to={withHash(routePaths.admin, "admin-users")}
+              >
                 Back to Users
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -158,7 +166,7 @@ function AdminProfilePage({ profileRole, userId }) {
               </div>
               <div className="profile-section">
                 <h2>Resume</h2>
-                {profile?.resumeLink && profile.resumeLink !== "#" ? (
+                {profile?.resumeLink ? (
                   <a className="profile-link" href={profile.resumeLink} target="_blank" rel="noreferrer">
                     Open Resume
                   </a>

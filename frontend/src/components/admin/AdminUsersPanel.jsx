@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { fetchAdminUsers, updateAdminUserStatus } from "../../lib/adminApi";
+import { getAdminProfilePath } from "../../routing/routes";
 import "../../styles/AdminUsersPanel.css";
 
 const INITIAL_QUERY = Object.freeze({
@@ -143,7 +145,7 @@ function AdminUsersPanel() {
 
       setError("");
       setNotice(
-        `${response.data.user?.name || user.name} is now ${response.data.user?.status || nextStatus}.`
+        `${response.data?.name || user.name} is now ${response.data?.status || nextStatus}.`
       );
       setRefreshTick((current) => current + 1);
     } catch {
@@ -280,9 +282,9 @@ function AdminUsersPanel() {
                 const isAdmin = user.role === "admin";
                 const nextStatus = user.status === "active" ? "disabled" : "active";
                 const profileHref = user.role === "seeker"
-                  ? `#admin/profiles/seeker/${user.id}`
+                  ? getAdminProfilePath("seeker", user.id)
                   : user.role === "employer"
-                    ? `#admin/profiles/employer/${user.id}`
+                    ? getAdminProfilePath("employer", user.id)
                     : "";
 
                 return (
@@ -319,9 +321,9 @@ function AdminUsersPanel() {
                     </td>
                     <td>
                       {profileHref ? (
-                        <a href={profileHref} className="admin-profile-link">
+                        <Link to={profileHref} className="admin-profile-link">
                           View Profile
-                        </a>
+                        </Link>
                       ) : (
                         <span className="admin-action-protected">No Profile</span>
                       )}

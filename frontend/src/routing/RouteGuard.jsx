@@ -1,28 +1,33 @@
-import { useEffect } from "react";
-import { getRouteRedirect, requiresResolvedSession } from "./routes";
+import { Navigate, Outlet } from "react-router-dom";
+import { getLandingPath, routePaths } from "./routes";
 
-function RouteGuard({ route, authLoading, authUser }) {
-  const shouldWaitForSession = authLoading && requiresResolvedSession(route);
-  const redirectHash = shouldWaitForSession ? null : getRouteRedirect(route, authUser);
-
-  useEffect(() => {
-    if (!redirectHash || window.location.hash === redirectHash) {
-      return;
-    }
-
-    window.location.hash = redirectHash;
-  }, [redirectHash]);
+function RouteGuard({
+  authLoading,
+  authUser,
+  publicOnly = false,
+  requiredRole = "",
+}) {
+  const shouldWaitForSession = authLoading && (publicOnly || requiredRole);
 
   if (shouldWaitForSession) {
     return <main className="page-status">Checking session...</main>;
   }
 
-  if (redirectHash) {
-    return null;
+  if (requiredRole) {
+    if (!authUser) {
+      return <Navigate to={routePaths.login} replace />;
+    }
+
+    if (authUser.role !== requiredRole) {
+      return <Navigate to={getLandingPath(authUser.role)} replace />;
+    }
   }
 
-  const RouteComponent = route.component;
-  return <RouteComponent key={route.renderKey} {...route.props} />;
+  if (publicOnly && authUser) {
+    return <Navigate to={getLandingPath(authUser.role)} replace />;
+  }
+
+  return <Outlet />;
 }
 
 export default RouteGuard;

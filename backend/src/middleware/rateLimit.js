@@ -7,6 +7,7 @@ export function createRateLimit({ windowMs, max, message }) {
         standardHeaders: true,
         legacyHeaders: false,
         message: {
+            success: false,
             status: 429,
             code: "RATE_LIMITED",
             message: message || "Too many requests, please try again later",

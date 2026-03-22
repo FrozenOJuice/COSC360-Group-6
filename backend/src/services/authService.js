@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { toUserDto } from "../dto/userDto.js";
 import { clearRefreshTokenHash, createUser, findByEmail, findById, setRefreshTokenHash, } from "../repositories/userRepository.js";
 import { hashRefreshToken, signAccessToken, signRefreshToken, verifyRefreshToken, } from "./sessionService.js";
 import { appError } from "../utils/appError.js";
@@ -52,12 +53,7 @@ export async function registerUser(payload) {
     }
 
     return {
-        user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-        },
+        user: toUserDto(user),
         accessToken,
         refreshToken,
     };
@@ -93,12 +89,7 @@ export async function loginUser(payload) {
     await setRefreshTokenHash(user.id, refreshTokenHash);
 
     return {
-        user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-        },
+        user: toUserDto(user),
         accessToken,
         refreshToken,
     };
@@ -133,12 +124,7 @@ export async function refreshSession(refreshToken) {
     await setRefreshTokenHash(user.id, nextRefreshTokenHash);
 
     return {
-        user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-        },
+        user: toUserDto(user),
         accessToken: nextAccessToken,
         refreshToken: nextRefreshToken,
     };
@@ -185,11 +171,6 @@ export async function getCurrentUser(userId) {
     }
 
     return {
-        user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-        },
+        user: toUserDto(user),
     };
 }

@@ -1,4 +1,4 @@
-import { buildQueryString, requestJson } from "./api";
+import { buildQueryString, mapResultData, requestJson } from "./api";
 
 export async function fetchAdminUsers(query = {}) {
   return requestJson(`/api/admin/users${buildQueryString(query)}`, {
@@ -9,15 +9,17 @@ export async function fetchAdminUsers(query = {}) {
 }
 
 export async function fetchAdminUserById(userId) {
-  return requestJson(`/api/admin/users/${userId}`, {
+  const result = await requestJson(`/api/admin/users/${userId}`, {
     method: "GET",
   }, {
     fallbackMessage: "Could not load user.",
   });
+
+  return mapResultData(result, (data) => data?.user ?? null);
 }
 
 export async function updateAdminUserStatus(userId, status) {
-  return requestJson(`/api/admin/users/${userId}/status`, {
+  const result = await requestJson(`/api/admin/users/${userId}/status`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -26,4 +28,6 @@ export async function updateAdminUserStatus(userId, status) {
   }, {
     fallbackMessage: "Could not update user status.",
   });
+
+  return mapResultData(result, (data) => data?.user ?? null);
 }

@@ -27,7 +27,7 @@ function createSeekerDraft(profile) {
     currentPosition: profile?.currentPosition || "",
     profilePicture: profile?.profilePicture || "/default-profile.png",
     phone: profile?.phone || "",
-    resumeLink: profile?.resumeLink || "#",
+    resumeLink: profile?.resumeLink || "",
     visibility: profile?.visibility === "public" ? "public" : "private",
   };
 }
@@ -143,7 +143,7 @@ function JobSeekerProfilePage() {
     currentPosition: profile?.currentPosition || "No current position.",
     profilePicture: profile?.profilePicture || "/default-profile.png",
     phone: profile?.phone || "No phone number.",
-    resumeLink: profile?.resumeLink || "#",
+    resumeLink: profile?.resumeLink || "",
   };
   const visibilityValue = isEditing ? draft.visibility : profile?.visibility;
   const visibilityLabel = visibilityValue === "public" ? "Public" : "Private";
@@ -312,7 +312,7 @@ function JobSeekerProfilePage() {
                 value={draft.resumeLink}
                 onChange={handleDraftChange}
               />
-            ) : profileData.resumeLink && profileData.resumeLink !== "#" ? (
+            ) : profileData.resumeLink ? (
               <a className="profile-link" href={profileData.resumeLink} target="_blank" rel="noreferrer">
                 Open Resume
               </a>

@@ -4,22 +4,11 @@ import {
     listDistinctJobFieldValues,
     listJobs,
 } from "../repositories/jobRepository.js";
+import { toJobDto } from "../dto/jobDto.js";
 import { escapeRegex, toPositiveInt } from "./queryUtils.js";
 import { appError } from "../utils/appError.js";
 
 const SORT_FIELDS = new Set(["title", "category", "country", "salary", "currency", "exchangeRate"]);
-
-function normalizeJob(job) {
-    return {
-        id: job.id ?? String(job._id),
-        title: job.title,
-        category: job.category,
-        country: job.country,
-        salary: job.salary,
-        currency: job.currency,
-        exchangeRate: job.exchangeRate,
-    };
-}
 
 function buildJobFilters(options = {}) {
     const filters = {};
@@ -75,7 +64,7 @@ export async function listBoardJobs(options = {}) {
     ]);
 
     return {
-        jobs: jobs.map(normalizeJob),
+        jobs: jobs.map(toJobDto),
         pagination: {
             page,
             limit,
@@ -106,7 +95,7 @@ export async function getBoardJob(jobId) {
     }
 
     return {
-        job: normalizeJob(job),
+        job: toJobDto(job),
     };
 }
 

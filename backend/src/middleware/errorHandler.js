@@ -81,7 +81,12 @@ function errorResponse(err) {
     
     let message = "Internal Server Error";
     if (err.message) message = err.message;
-    const response = { status, code, message };
+    const response = {
+        success: false,
+        status,
+        code,
+        message,
+    };
 
     if (err.details) response.details = err.details;
     if (process.env.NODE_ENV !== "production" && err.stack) response.stack = err.stack;

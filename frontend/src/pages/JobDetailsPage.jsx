@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import { fetchJobById } from "../lib/jobsApi";
+import { routePaths } from "../routing/routes";
 import "../styles/JobDetailsPage.css";
 
 function formatSalary(value, currency) {
@@ -22,7 +24,9 @@ function formatExchangeRate(value) {
   }).format(value);
 }
 
-function JobDetailsPage({ jobId }) {
+function JobDetailsPage({ jobId: jobIdProp }) {
+  const params = useParams();
+  const jobId = jobIdProp ?? params.jobId;
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -44,7 +48,7 @@ function JobDetailsPage({ jobId }) {
           return;
         }
 
-        setJob(response.data.job ?? null);
+        setJob(response.data ?? null);
         setError("");
         setLoading(false);
       } catch {
@@ -71,9 +75,9 @@ function JobDetailsPage({ jobId }) {
   return (
     <main className="landing-page">
       <section className="job-details-page">
-        <a className="job-details-back" href="#jobs">
+        <Link className="job-details-back" to={routePaths.jobs}>
           Back to jobs
-        </a>
+        </Link>
 
         {loading ? <p className="page-status">Loading job...</p> : null}
         {!loading && error ? <p className="page-status">{error}</p> : null}

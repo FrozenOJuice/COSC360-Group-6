@@ -1,29 +1,14 @@
 import {
+    toEmployerProfileDto,
+} from "../dto/profileDto.js";
+import {
     clearEmployerProfileLogo,
     createEmployerProfile,
     findEmployerProfileByUserId,
     setEmployerProfileLogo,
     updateEmployerProfile,
 } from "../repositories/employerProfileRepository.js";
-import { buildProfileAssetUrl, createBaseProfilePayload, normalizeOptionalString, } from "./profilePresentation.js";
 import { createProfileService } from "./profileServiceFactory.js";
-
-function normalizeEmployerProfile(profile) {
-    return {
-        ...createBaseProfilePayload(profile),
-        companyName: normalizeOptionalString(profile.companyName),
-        companyDescription: normalizeOptionalString(profile.companyDescription),
-        website: normalizeOptionalString(profile.website),
-        logo: buildProfileAssetUrl({
-            profile,
-            hasUploadedAsset: profile.hasUploadedLogo,
-            assetPath: (ownerId) => `/api/employer-profile/${ownerId}/logo`,
-        }),
-        location: normalizeOptionalString(profile.location),
-        contactEmail: normalizeOptionalString(profile.contactEmail),
-        contactPhone: normalizeOptionalString(profile.contactPhone),
-    };
-}
 
 export async function createInitialEmployerProfile(user, options = {}) {
     return createEmployerProfile({
@@ -40,7 +25,7 @@ const employerProfileService = createProfileService({
     mediaContentTypeField: "logoContentType",
     mediaDataField: "logoData",
     mediaNotFoundMessage: "Employer logo not found",
-    normalizeProfile: normalizeEmployerProfile,
+    normalizeProfile: toEmployerProfileDto,
     profileNotFoundMessage: "Employer profile not found",
     setProfileMedia: setEmployerProfileLogo,
     updateProfile: updateEmployerProfile,

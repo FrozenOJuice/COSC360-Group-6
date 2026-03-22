@@ -80,13 +80,26 @@ function apiRequest(path, options = {}) {
 }
 
 async function parseJsonResponse(response, fallbackMessage) {
-  const data = await readJson(response);
+  const payload = await readJson(response);
+
+  if (response.ok) {
+    const data = payload && typeof payload === "object" && "data" in payload
+      ? payload.data
+      : null;
+
+    return {
+      ok: true,
+      status: response.status,
+      data,
+      error: null,
+    };
+  }
 
   return {
-    ok: response.ok,
+    ok: false,
     status: response.status,
-    data,
-    error: response.ok ? null : createResponseError(data, response.status, fallbackMessage),
+    data: payload,
+    error: createResponseError(payload, response.status, fallbackMessage),
   };
 }
 
@@ -96,13 +109,15 @@ export function createNetworkErrorResult(message = NETWORK_ERROR_MESSAGE) {
   error.fieldErrors = {};
   error.details = [];
 
-  return {
-    ok: false,
-    status: 0,
-    data: {
-      details: [],
-      message,
-    },
+    return {
+      ok: false,
+      status: 0,
+      data: {
+        success: false,
+        status: 0,
+        details: [],
+        message,
+      },
     error,
   };
 }

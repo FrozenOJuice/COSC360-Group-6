@@ -2,7 +2,7 @@ import { mapResultData, requestJson } from "./api.js";
 
 async function requestEmployerProfile(path, options, fallbackMessage) {
   const result = await requestJson(path, options, { fallbackMessage });
-  return mapResultData(result, (payload) => payload.data ?? null);
+  return mapResultData(result, (data) => data ?? null);
 }
 
 export async function getCurrentEmployerProfile() {
