@@ -9,8 +9,9 @@ const profileSchema = new mongoose.Schema({
     },
     bio: {
         type: String,
+        trim: true,
         minlength: 2,
-        maxlength: 60,
+        maxlength: 500,
     },
     jobExperience: {
         type: [String],
@@ -22,18 +23,26 @@ const profileSchema = new mongoose.Schema({
     },
     currentPosition: {
         type: String,
+        trim: true,
+        maxlength: 120,
         default: 'Not specified',
     },
     profilePicture: {
         type: String,
+        trim: true,
+        maxlength: 500,
         default: '/default-profile.png',
     },
     phone: {
         type: String,
+        trim: true,
+        maxlength: 40,
         default: 'Not specified',
     },
     resumeLink: {
         type: String,
+        trim: true,
+        maxlength: 500,
         default: '#',
     }
 });

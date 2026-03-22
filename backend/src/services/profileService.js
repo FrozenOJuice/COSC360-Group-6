@@ -4,18 +4,24 @@ import { appError } from "../utils/appError.js";
 export async function getProfile(userId) {
     const profile = await findByUserId(userId);
     if (!profile) {
-        throw new appError("Profile not found", 404);
+        throw appError("NOT_FOUND", "Profile not found");
     }
     return profile;
 }
 
 export async function createOrUpdateProfile(userId, profileData) {
+    const safeProfileData = { ...(profileData || {}) };
+    delete safeProfileData.userId;
+    delete safeProfileData._id;
+
     let profile = await findByUserId(userId);
     if (profile) {
-        profile = await updateProfile(profile._id, profileData);
+        profile = await updateProfile(profile._id, safeProfileData);
     } else {
-        profileData.userId = userId;
-        profile = await createProfile(profileData);
+        profile = await createProfile({
+            ...safeProfileData,
+            userId,
+        });
     }
     return profile;
 }

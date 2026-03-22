@@ -17,7 +17,10 @@ export async function createProfile(profileData) {
 }
 
 export async function updateProfile(profileId, updateData) {
-    const query = Profile.findByIdAndUpdate(profileId, updateData, { new: true });
+    const query = Profile.findByIdAndUpdate(profileId, updateData, {
+        new: true,
+        runValidators: true,
+    });
     return query.exec();
 }
 

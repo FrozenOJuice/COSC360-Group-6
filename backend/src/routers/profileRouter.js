@@ -1,13 +1,16 @@
 import express from "express";
-import { getUserProfile, updateUserProfile } from "../controllers/profileController.js";
+import { getCurrentUserProfile, updateCurrentUserProfile } from "../controllers/profileController.js";
 import { requireAuth } from "../middleware/requireAuth.js";
+import { requireRole } from "../middleware/requireRole.js";
+import { validateBody } from "../middleware/validateBody.js";
+import { updateProfileSchema } from "../validators/profileSchemas.js";
 
 const router = express.Router();
 
-router.use(requireAuth);
+router.use(requireAuth, requireRole("seeker"));
 
-router.get("/:userId", getUserProfile);
+router.get("/me", getCurrentUserProfile);
 
-router.put("/:userId", updateUserProfile);
+router.put("/me", validateBody(updateProfileSchema), updateCurrentUserProfile);
 
 export default router;

@@ -1,7 +1,7 @@
 import { apiFetch } from "./api.js";
 
-export async function getUserProfile(userId) {
-  const response = await apiFetch(`/api/profile/${userId}`, {
+export async function getUserProfile() {
+  const response = await apiFetch("/api/profile/me", {
     method: "GET",
   });
 
@@ -13,8 +13,8 @@ export async function getUserProfile(userId) {
   return data.data;
 }
 
-export async function updateUserProfile(userId, profileData) {
-  const response = await apiFetch(`/api/profile/${userId}`, {
+export async function updateUserProfile(profileData) {
+  const response = await apiFetch("/api/profile/me", {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

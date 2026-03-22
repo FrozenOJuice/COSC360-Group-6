@@ -11,7 +11,7 @@ function JobSeekerProfilePage() {
 
   useEffect(() => {
     if (user?.id) {
-      getUserProfile(user.id)
+      getUserProfile()
         .then(setProfile)
         .catch((err) => {
           console.error('Failed to fetch profile:', err);
