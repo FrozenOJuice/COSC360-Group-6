@@ -2,7 +2,8 @@ import mongoose from "mongoose";
 import { clearRefreshTokenHash, createUser, findByEmail, findById, setRefreshTokenHash, } from "../repositories/userRepository.js";
 import { hashRefreshToken, signAccessToken, signRefreshToken, verifyRefreshToken, } from "./sessionService.js";
 import { appError } from "../utils/appError.js";
-import { createProfile } from "../repositories/profileRepository.js";
+import { createInitialEmployerProfile } from "./employerProfileService.js";
+import { createInitialSeekerProfile } from "./seekerProfileService.js";
 
 export async function registerUser(payload) {
     const safePayload = payload || {};
@@ -34,7 +35,11 @@ export async function registerUser(payload) {
             user = await createUser({ name, email, password, role, }, { session });
 
             if (user.role === "seeker") {
-                await createProfile({ userId: user._id }, { session });
+                await createInitialSeekerProfile(user._id, { session });
+            }
+
+            if (user.role === "employer") {
+                await createInitialEmployerProfile(user, { session });
             }
 
             accessToken = signAccessToken(user.id);

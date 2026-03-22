@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+const PROFILE_VISIBILITY_VALUES = ["private", "public"];
+const OBJECT_ID_PATTERN = /^[0-9a-fA-F]{24}$/;
+
 const emptyStringToUndefined = (value) => {
     if (typeof value !== "string") {
         return value;
@@ -46,7 +49,22 @@ const phoneSchema = z.string()
     .max(40, "Phone number must be at most 40 characters")
     .regex(/^[0-9+().\-\s]+$/, "Phone number contains invalid characters");
 
-export const updateProfileSchema = z.object({
+const visibilitySchema = z.enum(PROFILE_VISIBILITY_VALUES, {
+    error: "Visibility must be public or private",
+});
+
+const emailSchema = z.string()
+    .max(128, "Email must be at most 128 characters")
+    .email("Invalid email")
+    .transform((value) => value.toLowerCase());
+
+export const profileUserParamsSchema = z.object({
+    userId: z.string()
+        .trim()
+        .regex(OBJECT_ID_PATTERN, "User id must be a valid MongoDB ObjectId"),
+}).strict();
+
+export const updateSeekerProfileSchema = z.object({
     bio: optionalTrimmedString(
         z.string()
             .min(2, "Bio must be at least 2 characters")
@@ -62,4 +80,28 @@ export const updateProfileSchema = z.object({
     profilePicture: optionalTrimmedString(urlOrAppPathSchema),
     phone: optionalTrimmedString(phoneSchema),
     resumeLink: optionalTrimmedString(urlOrAppPathSchema),
+    visibility: optionalTrimmedString(visibilitySchema),
+}).strict();
+
+export const updateEmployerProfileSchema = z.object({
+    companyName: optionalTrimmedString(
+        z.string()
+            .min(2, "Company name must be at least 2 characters")
+            .max(120, "Company name must be at most 120 characters")
+    ),
+    companyDescription: optionalTrimmedString(
+        z.string()
+            .min(2, "Company description must be at least 2 characters")
+            .max(2000, "Company description must be at most 2000 characters")
+    ),
+    website: optionalTrimmedString(urlOrAppPathSchema),
+    logo: optionalTrimmedString(urlOrAppPathSchema),
+    location: optionalTrimmedString(
+        z.string()
+            .min(2, "Location must be at least 2 characters")
+            .max(120, "Location must be at most 120 characters")
+    ),
+    contactEmail: optionalTrimmedString(emailSchema),
+    contactPhone: optionalTrimmedString(phoneSchema),
+    visibility: optionalTrimmedString(visibilitySchema),
 }).strict();
