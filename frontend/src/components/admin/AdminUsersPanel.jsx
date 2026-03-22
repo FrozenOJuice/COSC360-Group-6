@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
+import { useDebouncedQueryInput } from "../../hooks/useDebouncedQueryInput";
+import { usePaginatedResource } from "../../hooks/usePaginatedResource";
 import { fetchAdminUsers, updateAdminUserStatus } from "../../lib/adminApi";
 import { getAdminProfilePath } from "../../routing/routes";
 import "../../styles/AdminUsersPanel.css";
@@ -33,100 +35,46 @@ const EMPTY_RESULT = Object.freeze({
   },
 });
 
+function normalizeUsersResult(data) {
+  return {
+    users: Array.isArray(data?.users) ? data.users : [],
+    pagination: data?.pagination ?? EMPTY_RESULT.pagination,
+    sort: data?.sort ?? EMPTY_RESULT.sort,
+    filters: data?.filters ?? EMPTY_RESULT.filters,
+  };
+}
+
 function AdminUsersPanel() {
-  const [query, setQuery] = useState(INITIAL_QUERY);
-  const [searchInput, setSearchInput] = useState("");
-  const [result, setResult] = useState(EMPTY_RESULT);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const {
+    query,
+    result,
+    loading,
+    error,
+    clearError,
+    setErrorMessage,
+    updateQuery,
+    reload,
+  } = usePaginatedResource({
+    initialQuery: INITIAL_QUERY,
+    initialResult: EMPTY_RESULT,
+    loadResource: fetchAdminUsers,
+    normalizeResult: normalizeUsersResult,
+    fallbackMessage: "Could not load users.",
+  });
   const [notice, setNotice] = useState("");
-  const [refreshTick, setRefreshTick] = useState(0);
   const [pendingUserIds, setPendingUserIds] = useState({});
-  const requestIdRef = useRef(0);
+  const commitSearch = useCallback((search) => {
+    updateQuery({ search, page: 1 });
+  }, [updateQuery]);
 
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      const nextSearch = searchInput.trim();
-
-      setQuery((current) => {
-        if (current.search === nextSearch) {
-          return current;
-        }
-
-        return {
-          ...current,
-          search: nextSearch,
-          page: 1,
-        };
-      });
-    }, 250);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [searchInput]);
-
-  useEffect(() => {
-    let isActive = true;
-    const requestId = requestIdRef.current + 1;
-    requestIdRef.current = requestId;
-    setLoading(true);
-
-    async function loadUsers() {
-      try {
-        const response = await fetchAdminUsers(query);
-
-        if (!isActive || requestIdRef.current !== requestId) {
-          return;
-        }
-
-        if (!response.ok) {
-          setError(response.data.message || "Could not load users.");
-          setLoading(false);
-          return;
-        }
-
-        const nextUsers = Array.isArray(response.data.users) ? response.data.users : [];
-        const nextPagination = response.data.pagination ?? EMPTY_RESULT.pagination;
-
-        if (nextPagination.totalPages > 0 && query.page > nextPagination.totalPages) {
-          setQuery((current) => (
-            current.page === query.page
-              ? { ...current, page: nextPagination.totalPages }
-              : current
-          ));
-          return;
-        }
-
-        setResult({
-          users: nextUsers,
-          pagination: nextPagination,
-          sort: response.data.sort ?? EMPTY_RESULT.sort,
-          filters: response.data.filters ?? EMPTY_RESULT.filters,
-        });
-        setError("");
-        setLoading(false);
-      } catch {
-        if (!isActive || requestIdRef.current !== requestId) {
-          return;
-        }
-
-        setError("Could not connect to the server.");
-        setLoading(false);
-      }
-    }
-
-    void loadUsers();
-
-    return () => {
-      isActive = false;
-    };
-  }, [query, refreshTick]);
-
-  function updateQuery(patch) {
-    setQuery((current) => ({
-      ...current,
-      ...patch,
-    }));
-  }
+  const {
+    inputValue: searchInput,
+    setInputValue: setSearchInput,
+    isPending: isSearchPending,
+  } = useDebouncedQueryInput({
+    queryValue: query.search,
+    onCommit: commitSearch,
+  });
 
   async function handleStatusChange(user, nextStatus) {
     setPendingUserIds((current) => ({
@@ -139,17 +87,17 @@ function AdminUsersPanel() {
       const response = await updateAdminUserStatus(user.id, nextStatus);
 
       if (!response.ok) {
-        setError(response.data.message || "Could not update user status.");
+        setErrorMessage(response.data.message || "Could not update user status.");
         return;
       }
 
-      setError("");
+      clearError();
       setNotice(
         `${response.data?.name || user.name} is now ${response.data?.status || nextStatus}.`
       );
-      setRefreshTick((current) => current + 1);
+      reload();
     } catch {
-      setError("Could not connect to the server.");
+      setErrorMessage("Could not connect to the server.");
     } finally {
       setPendingUserIds((current) => {
         const nextState = { ...current };
@@ -159,6 +107,7 @@ function AdminUsersPanel() {
     }
   }
 
+  const isLoadingUsers = loading || isSearchPending;
   const totalPages = result.pagination.totalPages || 0;
   const canGoPrevious = query.page > 1;
   const canGoNext = totalPages > 0 && query.page < totalPages;
@@ -181,7 +130,10 @@ function AdminUsersPanel() {
           <input
             type="search"
             value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
+            onChange={(event) => {
+              clearError();
+              setSearchInput(event.target.value);
+            }}
             placeholder="Search by name or email"
           />
         </label>
@@ -264,7 +216,7 @@ function AdminUsersPanel() {
             </tr>
           </thead>
           <tbody>
-            {loading ? (
+            {isLoadingUsers ? (
               <tr>
                 <td colSpan="6" className="admin-users-empty">
                   Loading users...
@@ -344,14 +296,14 @@ function AdminUsersPanel() {
           <button
             type="button"
             onClick={() => updateQuery({ page: query.page - 1 })}
-            disabled={!canGoPrevious || loading}
+            disabled={!canGoPrevious || isLoadingUsers}
           >
             Previous
           </button>
           <button
             type="button"
             onClick={() => updateQuery({ page: query.page + 1 })}
-            disabled={!canGoNext || loading}
+            disabled={!canGoNext || isLoadingUsers}
           >
             Next
           </button>

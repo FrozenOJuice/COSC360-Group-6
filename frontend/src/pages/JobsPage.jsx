@@ -1,5 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import JobCard from "../components/JobCard";
+import { useDebouncedQueryInput } from "../hooks/useDebouncedQueryInput";
+import { usePaginatedResource } from "../hooks/usePaginatedResource";
 import { fetchJobOptions, fetchJobs } from "../lib/jobsApi";
 import "../styles/JobsPage.css";
 
@@ -39,6 +41,15 @@ const EMPTY_OPTIONS = Object.freeze({
   countries: [],
   currencies: [],
 });
+
+function normalizeJobsResult(data) {
+  return {
+    jobs: Array.isArray(data?.jobs) ? data.jobs : [],
+    pagination: data?.pagination ?? EMPTY_RESULT.pagination,
+    sort: data?.sort ?? EMPTY_RESULT.sort,
+    filters: data?.filters ?? EMPTY_RESULT.filters,
+  };
+}
 
 function AutocompleteField({
   label,
@@ -103,16 +114,38 @@ function AutocompleteField({
 }
 
 function JobsPage() {
-  const [query, setQuery] = useState(INITIAL_QUERY);
-  const [searchInput, setSearchInput] = useState("");
   const [categoryInput, setCategoryInput] = useState("");
   const [countryInput, setCountryInput] = useState("");
   const [currencyInput, setCurrencyInput] = useState("");
   const [options, setOptions] = useState(EMPTY_OPTIONS);
-  const [result, setResult] = useState(EMPTY_RESULT);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const requestIdRef = useRef(0);
+  const {
+    query,
+    result,
+    loading,
+    error,
+    clearError,
+    updateQuery,
+    replaceQuery,
+  } = usePaginatedResource({
+    initialQuery: INITIAL_QUERY,
+    initialResult: EMPTY_RESULT,
+    loadResource: fetchJobs,
+    normalizeResult: normalizeJobsResult,
+    fallbackMessage: "Could not load jobs.",
+  });
+
+  const commitSearch = useCallback((search) => {
+    updateQuery({ search, page: 1 });
+  }, [updateQuery]);
+
+  const {
+    inputValue: searchInput,
+    setInputValue: setSearchInput,
+    isPending: isSearchPending,
+  } = useDebouncedQueryInput({
+    queryValue: query.search,
+    onCommit: commitSearch,
+  });
 
   useEffect(() => {
     let isActive = true;
@@ -128,7 +161,7 @@ function JobsPage() {
         setOptions({
           categories: Array.isArray(response.data.categories) ? response.data.categories : [],
           countries: Array.isArray(response.data.countries) ? response.data.countries : [],
-          currencies: Array.isArray(response.data.currencies) ? response.data.currencies : [],
+            currencies: Array.isArray(response.data.currencies) ? response.data.currencies : [],
         });
       } catch {
         // Keep filters usable even if the option lookup fails.
@@ -142,101 +175,15 @@ function JobsPage() {
     };
   }, []);
 
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      const nextSearch = searchInput.trim();
-
-      setQuery((current) => {
-        if (current.search === nextSearch) {
-          return current;
-        }
-
-        return {
-          ...current,
-          search: nextSearch,
-          page: 1,
-        };
-      });
-    }, 250);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [searchInput]);
-
-  useEffect(() => {
-    let isActive = true;
-    const requestId = requestIdRef.current + 1;
-    requestIdRef.current = requestId;
-
-    async function loadJobs() {
-      try {
-        const response = await fetchJobs(query);
-
-        if (!isActive || requestIdRef.current !== requestId) {
-          return;
-        }
-
-        if (!response.ok) {
-          setError(response.data.message || "Could not load jobs.");
-          setLoading(false);
-          return;
-        }
-
-        const nextJobs = Array.isArray(response.data.jobs) ? response.data.jobs : [];
-        const nextPagination = response.data.pagination ?? EMPTY_RESULT.pagination;
-
-        if (nextPagination.totalPages > 0 && query.page > nextPagination.totalPages) {
-          setQuery((current) => (
-            current.page === query.page
-              ? { ...current, page: nextPagination.totalPages }
-              : current
-          ));
-          return;
-        }
-
-        setResult({
-          jobs: nextJobs,
-          pagination: nextPagination,
-          sort: response.data.sort ?? EMPTY_RESULT.sort,
-          filters: response.data.filters ?? EMPTY_RESULT.filters,
-        });
-        setError("");
-        setLoading(false);
-      } catch {
-        if (!isActive || requestIdRef.current !== requestId) {
-          return;
-        }
-
-        setError("Could not connect to the server.");
-        setLoading(false);
-      }
-    }
-
-    void loadJobs();
-
-    return () => {
-      isActive = false;
-    };
-  }, [query]);
-
-  function updateQuery(patch) {
-    setLoading(true);
-    setError("");
-    setQuery((current) => ({
-      ...current,
-      ...patch,
-    }));
-  }
-
   function clearFilters() {
-    setLoading(true);
-    setError("");
     setSearchInput("");
     setCategoryInput("");
     setCountryInput("");
     setCurrencyInput("");
-    setQuery(INITIAL_QUERY);
+    replaceQuery(INITIAL_QUERY);
   }
 
+  const isLoadingResults = loading || isSearchPending;
   const totalPages = result.pagination.totalPages || 0;
   const canGoPrevious = query.page > 1;
   const canGoNext = totalPages > 0 && query.page < totalPages;
@@ -268,8 +215,7 @@ function JobsPage() {
               type="search"
               value={searchInput}
               onChange={(event) => {
-                setLoading(true);
-                setError("");
+                clearError();
                 setSearchInput(event.target.value);
               }}
               placeholder="Search title, category, or country"
@@ -356,7 +302,7 @@ function JobsPage() {
         </div>
       </section>
 
-      {error ? <div className="jobs-status jobs-status-error">{error}</div> : null}
+        {error ? <div className="jobs-status jobs-status-error">{error}</div> : null}
 
       <section className="preview-section">
         <div className="section-heading jobs-results-heading">
@@ -369,7 +315,7 @@ function JobsPage() {
           </p>
         </div>
 
-        {loading ? (
+        {isLoadingResults ? (
           <p className="page-status">Loading jobs...</p>
         ) : result.jobs.length === 0 ? (
           <p className="page-status">No jobs matched the current search.</p>
@@ -394,14 +340,14 @@ function JobsPage() {
         <button
           type="button"
           onClick={() => updateQuery({ page: query.page - 1 })}
-          disabled={!canGoPrevious || loading}
+          disabled={!canGoPrevious || isLoadingResults}
         >
           Previous
         </button>
         <button
           type="button"
           onClick={() => updateQuery({ page: query.page + 1 })}
-          disabled={!canGoNext || loading}
+          disabled={!canGoNext || isLoadingResults}
         >
           Next
         </button>
