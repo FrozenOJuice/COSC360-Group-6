@@ -1,4 +1,5 @@
 import { apiFetch } from "./api.js";
+import { getResponseMessage } from "./responseMessage.js";
 
 export async function getCurrentSeekerProfile() {
   const response = await apiFetch("/api/seeker-profile/me", {
@@ -6,7 +7,7 @@ export async function getCurrentSeekerProfile() {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch seeker profile");
+    throw new Error(await getResponseMessage(response, "Failed to fetch seeker profile"));
   }
 
   const data = await response.json();
@@ -23,7 +24,7 @@ export async function updateCurrentSeekerProfile(profileData) {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to update seeker profile");
+    throw new Error(await getResponseMessage(response, "Failed to update seeker profile"));
   }
 
   const data = await response.json();

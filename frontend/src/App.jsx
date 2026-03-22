@@ -33,11 +33,11 @@ function App() {
   const currentPage = getCurrentPage(hash);
   const currentJobId = getJobIdFromHash(hash);
   const requiredRole = getRequiredRoleForPage(currentPage);
-  const navbarVariant = requiredRole === "admin" && authUser?.role === "admin"
+  const navbarVariant = authUser?.role === "admin"
     ? "admin"
-    : requiredRole === "seeker" && authUser?.role === "seeker"
+    : authUser?.role === "seeker"
       ? "jobSeeker"
-      : requiredRole === "employer" && authUser?.role === "employer"
+      : authUser?.role === "employer"
         ? "employer"
         : "public";
 

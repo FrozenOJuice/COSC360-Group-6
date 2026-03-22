@@ -61,7 +61,7 @@ const seekerProfileSchema = new mongoose.Schema({
         },
     },
 }, {
-    collection: "profiles",
+    collection: "seekerProfiles",
 });
 
 const SeekerProfile = mongoose.models.SeekerProfile || mongoose.model("SeekerProfile", seekerProfileSchema);
