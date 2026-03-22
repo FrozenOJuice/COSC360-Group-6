@@ -14,6 +14,19 @@ export async function getCurrentEmployerProfile() {
   return data.data;
 }
 
+export async function getEmployerProfileByUserId(userId) {
+  const response = await apiFetch(`/api/employer-profile/${userId}`, {
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    throw new Error(await getResponseMessage(response, "Failed to fetch employer profile"));
+  }
+
+  const data = await response.json();
+  return data.data;
+}
+
 export async function updateCurrentEmployerProfile(profileData) {
   const response = await apiFetch("/api/employer-profile/me", {
     method: "PUT",

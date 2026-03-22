@@ -55,6 +55,12 @@
   gap: 20px;
 }
 
+.profile-admin-copy {
+  margin: 0;
+  color: #66758d;
+  line-height: 1.6;
+}
+
 .profile-actions {
   display: flex;
   flex-wrap: wrap;

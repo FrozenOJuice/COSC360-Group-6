@@ -36,6 +36,19 @@ export async function fetchAdminUsers(query = {}) {
   };
 }
 
+export async function fetchAdminUserById(userId) {
+  const response = await apiFetch(`/api/admin/users/${userId}`, {
+    method: "GET",
+  });
+  const data = await readJson(response);
+
+  return {
+    ok: response.ok,
+    status: response.status,
+    data,
+  };
+}
+
 export async function updateAdminUserStatus(userId, status) {
   const response = await apiFetch(`/api/admin/users/${userId}/status`, {
     method: "PATCH",

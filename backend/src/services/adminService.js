@@ -91,6 +91,21 @@ export async function listAdminUsers(options = {}) {
     };
 }
 
+export async function getManagedUser(userId) {
+    if (!userId) {
+        throw appError("INVALID_REQUEST", "User id is required");
+    }
+
+    const user = await findById(userId);
+    if (!user) {
+        throw appError("USER_NOT_FOUND", "User not found");
+    }
+
+    return {
+        user: normalizeUser(user),
+    };
+}
+
 export async function setManagedUserStatus({ userId, status }) {
     const nextStatus = typeof status === "string" ? status.trim() : "";
 

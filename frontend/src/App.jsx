@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "./auth/useAuth";
 import AdminPage from "./pages/AdminPage";
+import AdminProfilePage from "./pages/AdminProfilePage";
 import Navbar from "./components/Navbar";
 import EmployerPage from "./pages/EmployerPage";
 import EmployerProfilePage from "./pages/EmployerProfilePage";
@@ -13,6 +14,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import {
   getCurrentPage,
+  getAdminProfileParamsFromHash,
   getJobIdFromHash,
   getLandingHash,
   getRequiredRoleForPage,
@@ -32,6 +34,7 @@ function App() {
 
   const currentPage = getCurrentPage(hash);
   const currentJobId = getJobIdFromHash(hash);
+  const adminProfileParams = getAdminProfileParamsFromHash(hash);
   const requiredRole = getRequiredRoleForPage(currentPage);
   const navbarVariant = authUser?.role === "admin"
     ? "admin"
@@ -79,6 +82,12 @@ function App() {
         <main className="page-status">Checking session...</main>
       ) : null}
       {currentPage === "admin" && shouldShowProtectedPage ? <AdminPage /> : null}
+      {currentPage === "adminProfile" && shouldShowProtectedPage ? (
+        <AdminProfilePage
+          profileRole={adminProfileParams.profileRole}
+          userId={adminProfileParams.userId}
+        />
+      ) : null}
       {currentPage === "employer" && shouldShowProtectedPage ? <EmployerPage /> : null}
       {currentPage === "employerProfile" && shouldShowProtectedPage ? <EmployerProfilePage /> : null}
       {currentPage === "jobs" ? <JobsPage /> : null}

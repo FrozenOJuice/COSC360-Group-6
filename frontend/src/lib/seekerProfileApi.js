@@ -14,6 +14,19 @@ export async function getCurrentSeekerProfile() {
   return data.data;
 }
 
+export async function getSeekerProfileByUserId(userId) {
+  const response = await apiFetch(`/api/seeker-profile/${userId}`, {
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    throw new Error(await getResponseMessage(response, "Failed to fetch seeker profile"));
+  }
+
+  const data = await response.json();
+  return data.data;
+}
+
 export async function updateCurrentSeekerProfile(profileData) {
   const response = await apiFetch("/api/seeker-profile/me", {
     method: "PUT",

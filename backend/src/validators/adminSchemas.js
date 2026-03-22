@@ -57,3 +57,9 @@ export const updateUserStatusParamsSchema = z.object({
         .trim()
         .regex(OBJECT_ID_PATTERN, "User id must be a valid MongoDB ObjectId"),
 }).strict();
+
+export const adminUserParamsSchema = z.object({
+    id: z.string()
+        .trim()
+        .regex(OBJECT_ID_PATTERN, "User id must be a valid MongoDB ObjectId"),
+}).strict();

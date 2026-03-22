@@ -257,19 +257,20 @@ function AdminUsersPanel() {
               <th>Email</th>
               <th>Role</th>
               <th>Status</th>
-              <th>Action</th>
+              <th>Access</th>
+              <th>Profile</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="5" className="admin-users-empty">
+                <td colSpan="6" className="admin-users-empty">
                   Loading users...
                 </td>
               </tr>
             ) : result.users.length === 0 ? (
               <tr>
-                <td colSpan="5" className="admin-users-empty">
+                <td colSpan="6" className="admin-users-empty">
                   No users matched the current filters.
                 </td>
               </tr>
@@ -278,6 +279,11 @@ function AdminUsersPanel() {
                 const isPending = !!pendingUserIds[user.id];
                 const isAdmin = user.role === "admin";
                 const nextStatus = user.status === "active" ? "disabled" : "active";
+                const profileHref = user.role === "seeker"
+                  ? `#admin/profiles/seeker/${user.id}`
+                  : user.role === "employer"
+                    ? `#admin/profiles/employer/${user.id}`
+                    : "";
 
                 return (
                   <tr key={user.id}>
@@ -309,6 +315,15 @@ function AdminUsersPanel() {
                               ? "Disable"
                               : "Enable"}
                         </button>
+                      )}
+                    </td>
+                    <td>
+                      {profileHref ? (
+                        <a href={profileHref} className="admin-profile-link">
+                          View Profile
+                        </a>
+                      ) : (
+                        <span className="admin-action-protected">No Profile</span>
                       )}
                     </td>
                   </tr>

@@ -1,11 +1,12 @@
 import express from "express";
-import { getUsers, updateUserStatus } from "../controllers/adminController.js";
+import { getUserById, getUsers, updateUserStatus } from "../controllers/adminController.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { requireRole } from "../middleware/requireRole.js";
 import { validateBody } from "../middleware/validateBody.js";
 import { validateParams } from "../middleware/validateParams.js";
 import { validateQuery } from "../middleware/validateQuery.js";
 import {
+    adminUserParamsSchema,
     listUsersQuerySchema,
     updateUserStatusParamsSchema,
     updateUserStatusSchema,
@@ -16,6 +17,7 @@ const adminRouter = express.Router();
 adminRouter.use(requireAuth, requireRole("admin"));
 
 adminRouter.get("/users", validateQuery(listUsersQuerySchema), getUsers);
+adminRouter.get("/users/:id", validateParams(adminUserParamsSchema), getUserById);
 adminRouter.patch(
     "/users/:id/status",
     validateParams(updateUserStatusParamsSchema),

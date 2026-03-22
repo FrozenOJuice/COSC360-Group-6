@@ -181,6 +181,29 @@
   box-shadow: 0 12px 24px rgba(24, 33, 47, 0.12);
 }
 
+.admin-users-table th:nth-last-child(-n + 2),
+.admin-users-table td:nth-last-child(-n + 2) {
+  text-align: right;
+}
+
+.admin-profile-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  padding: 11px 14px;
+  background: #eef3f8;
+  color: #223043;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.admin-profile-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(24, 33, 47, 0.1);
+}
+
 .admin-users-pagination {
   display: flex;
   align-items: center;
