@@ -6,14 +6,19 @@ export async function findById(profileId) {
     return query.exec();
 }
 
-export async function findByUserId(userId) {
+export async function findByUserId(userId, options = {}) {
     const query = Profile.findOne({ userId });
+
+    if (options.session) {
+        query.session(options.session);
+    }
 
     return query.exec();
 }
 
-export async function createProfile(profileData) {
-    return Profile.create(profileData);
+export async function createProfile(profileData, options = {}) {
+    const profile = new Profile(profileData);
+    return profile.save(options.session ? { session: options.session } : undefined);
 }
 
 export async function updateProfile(profileId, updateData) {

@@ -11,6 +11,10 @@ export async function findByEmail(email, options = {}) {
         query.select("+refreshTokenHash");
     }
 
+    if (options.session) {
+        query.session(options.session);
+    }
+
     return query.exec();
 }
 
@@ -23,6 +27,10 @@ export async function findById(userId, options = {}) {
 
     if (options.includeRefreshTokenHash) {
         query.select("+refreshTokenHash");
+    }
+
+    if (options.session) {
+        query.session(options.session);
     }
 
     return query.exec();
@@ -50,8 +58,9 @@ export async function countUsers(filters = {}) {
     return User.countDocuments(filters).exec();
 }
 
-export async function createUser(userData) {
-    return User.create(userData);
+export async function createUser(userData, options = {}) {
+    const user = new User(userData);
+    return user.save(options.session ? { session: options.session } : undefined);
 }
 
 export async function saveUser(user) {
@@ -60,12 +69,15 @@ export async function saveUser(user) {
 
 
 
-export async function setRefreshTokenHash(userId, refreshTokenHash) {
+export async function setRefreshTokenHash(userId, refreshTokenHash, options = {}) {
     return User.findByIdAndUpdate(
         userId,
         { refreshTokenHash },
-        { new: true }
-    );
+        {
+            new: true,
+            session: options.session,
+        }
+    ).exec();
 }
 
 export async function clearRefreshTokenHash(userId) {
