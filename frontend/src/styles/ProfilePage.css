@@ -116,7 +116,8 @@
 
 .profile-input,
 .profile-textarea,
-.profile-select {
+.profile-select,
+.profile-file-input {
   width: 100%;
   padding: 13px 14px;
   border: 1px solid #ccd6e4;
@@ -134,7 +135,8 @@
 
 .profile-input:focus,
 .profile-textarea:focus,
-.profile-select:focus {
+.profile-select:focus,
+.profile-file-input:focus {
   outline: none;
   border-color: #18212f;
   box-shadow: 0 0 0 3px rgba(24, 33, 47, 0.1);

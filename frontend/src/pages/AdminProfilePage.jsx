@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchAdminUserById } from "../lib/adminApi";
 import { getEmployerProfileByUserId } from "../lib/employerProfileApi";
+import { resolveProfileAssetUrl } from "../lib/profileAssetUrl";
 import { getSeekerProfileByUserId } from "../lib/seekerProfileApi";
 import "../styles/ProfilePage.css";
 
@@ -162,9 +163,9 @@ function AdminProfilePage({ profileRole, userId }) {
 
         <div className="profile-side-card">
           <img
-            src={profileRole === "employer"
-              ? (profile?.logo || "/default-profile.png")
-              : (profile?.profilePicture || "/default-profile.png")}
+            src={resolveProfileAssetUrl(
+              profileRole === "employer" ? profile?.logo : profile?.profilePicture
+            )}
             alt={profileRole === "employer" ? "Company logo" : "Profile picture"}
             className="profile-image"
           />

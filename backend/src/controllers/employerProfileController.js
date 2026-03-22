@@ -4,6 +4,7 @@ import {
     updateCurrentEmployerProfile,
 } from "../services/employerProfileService.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
+import { getUploadedProfileImagePath } from "../middleware/profileImageUpload.js";
 
 export const getSelfEmployerProfile = asyncHandler(async (req, res) => {
     const profile = await getCurrentEmployerProfile(req.auth?.userId);
@@ -12,6 +13,13 @@ export const getSelfEmployerProfile = asyncHandler(async (req, res) => {
 
 export const updateSelfEmployerProfile = asyncHandler(async (req, res) => {
     const profile = await updateCurrentEmployerProfile(req.auth?.userId, req.body);
+    res.status(200).json({ success: true, data: profile });
+});
+
+export const uploadSelfEmployerProfileLogo = asyncHandler(async (req, res) => {
+    const profile = await updateCurrentEmployerProfile(req.auth?.userId, {
+        logo: getUploadedProfileImagePath(req.file),
+    });
     res.status(200).json({ success: true, data: profile });
 });
 

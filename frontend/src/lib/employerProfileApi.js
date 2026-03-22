@@ -27,6 +27,23 @@ export async function getEmployerProfileByUserId(userId) {
   return data.data;
 }
 
+export async function uploadCurrentEmployerLogo(file) {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const response = await apiFetch("/api/employer-profile/me/logo", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw await createResponseError(response, "Failed to upload employer logo");
+  }
+
+  const data = await response.json();
+  return data.data;
+}
+
 export async function updateCurrentEmployerProfile(profileData) {
   const response = await apiFetch("/api/employer-profile/me", {
     method: "PUT",

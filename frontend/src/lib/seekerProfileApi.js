@@ -27,6 +27,23 @@ export async function getSeekerProfileByUserId(userId) {
   return data.data;
 }
 
+export async function uploadCurrentSeekerProfilePicture(file) {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const response = await apiFetch("/api/seeker-profile/me/picture", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw await createResponseError(response, "Failed to upload profile picture");
+  }
+
+  const data = await response.json();
+  return data.data;
+}
+
 export async function updateCurrentSeekerProfile(profileData) {
   const response = await apiFetch("/api/seeker-profile/me", {
     method: "PUT",

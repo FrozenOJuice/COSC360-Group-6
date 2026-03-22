@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../auth/useAuth";
 import {
   getCurrentEmployerProfile,
+  uploadCurrentEmployerLogo,
   updateCurrentEmployerProfile,
 } from "../lib/employerProfileApi";
+import { resolveProfileAssetUrl } from "../lib/profileAssetUrl";
 import "../styles/ProfilePage.css";
 
 function createEmployerDraft(profile, user) {
@@ -28,6 +30,7 @@ function EmployerProfilePage() {
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [saveSuccess, setSaveSuccess] = useState("");
 
@@ -113,6 +116,51 @@ function EmployerProfilePage() {
       setSaveError(Object.keys(nextFieldErrors).length === 0 ? (err.message || "Failed to update employer profile") : "");
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function handleLogoUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    setIsUploadingImage(true);
+    setSaveError("");
+    setSaveSuccess("");
+    setFieldErrors((currentErrors) => {
+      if (!currentErrors.logo) {
+        return currentErrors;
+      }
+
+      const nextErrors = { ...currentErrors };
+      delete nextErrors.logo;
+      return nextErrors;
+    });
+
+    try {
+      const updatedProfile = await uploadCurrentEmployerLogo(file);
+      setProfile((currentProfile) => ({
+        ...(currentProfile || updatedProfile),
+        logo: updatedProfile.logo,
+      }));
+      setDraft((currentDraft) => ({
+        ...currentDraft,
+        logo: updatedProfile.logo,
+      }));
+      setSaveSuccess("Employer logo uploaded successfully.");
+    } catch (err) {
+      const nextFieldErrors = err?.fieldErrors || {};
+      setFieldErrors((currentErrors) => ({
+        ...currentErrors,
+        ...nextFieldErrors,
+      }));
+      if (!nextFieldErrors.logo) {
+        setSaveError(err.message || "Failed to upload employer logo");
+      }
+    } finally {
+      setIsUploadingImage(false);
+      event.target.value = "";
     }
   }
 
@@ -248,7 +296,9 @@ function EmployerProfilePage() {
         </div>
         <div className="profile-side-card">
           <img
-            src={isEditing ? (draft.logo || "/default-profile.png") : profileData.logo}
+            src={resolveProfileAssetUrl(
+              isEditing ? draft.logo : profileData.logo
+            )}
             alt="Company logo"
             className="profile-image"
           />
@@ -282,6 +332,20 @@ function EmployerProfilePage() {
             <p><strong>Account Email:</strong> {user?.email || "N/A"}</p>
             {isEditing ? (
               <>
+                <label className="profile-field">
+                  <span>Upload Logo</span>
+                  <input
+                    className={getControlClass("profile-file-input", "logo")}
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    onChange={handleLogoUpload}
+                    disabled={isUploadingImage}
+                  />
+                </label>
+                <p className="profile-helper-copy">
+                  Upload a JPG, PNG, GIF, or WebP image up to 5 MB.
+                </p>
+                {isUploadingImage ? <p className="profile-helper-copy">Uploading image...</p> : null}
                 <label className="profile-field">
                   <span>Logo URL</span>
                   <input

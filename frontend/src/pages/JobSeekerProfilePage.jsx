@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../auth/useAuth';
 import {
   getCurrentSeekerProfile,
+  uploadCurrentSeekerProfilePicture,
   updateCurrentSeekerProfile,
 } from '../lib/seekerProfileApi';
+import { resolveProfileAssetUrl } from '../lib/profileAssetUrl';
 import '../styles/ProfilePage.css';
 
 function createEditableList(values) {
@@ -38,6 +40,7 @@ function JobSeekerProfilePage() {
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState('');
 
@@ -159,6 +162,51 @@ function JobSeekerProfilePage() {
       setSaveError(Object.keys(nextFieldErrors).length === 0 ? (err.message || 'Failed to update profile') : '');
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function handleProfilePictureUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    setIsUploadingImage(true);
+    setSaveError('');
+    setSaveSuccess('');
+    setFieldErrors((currentErrors) => {
+      if (!currentErrors.profilePicture) {
+        return currentErrors;
+      }
+
+      const nextErrors = { ...currentErrors };
+      delete nextErrors.profilePicture;
+      return nextErrors;
+    });
+
+    try {
+      const updatedProfile = await uploadCurrentSeekerProfilePicture(file);
+      setProfile((currentProfile) => ({
+        ...(currentProfile || updatedProfile),
+        profilePicture: updatedProfile.profilePicture,
+      }));
+      setDraft((currentDraft) => ({
+        ...currentDraft,
+        profilePicture: updatedProfile.profilePicture,
+      }));
+      setSaveSuccess('Profile picture uploaded successfully.');
+    } catch (err) {
+      const nextFieldErrors = err?.fieldErrors || {};
+      setFieldErrors((currentErrors) => ({
+        ...currentErrors,
+        ...nextFieldErrors,
+      }));
+      if (!nextFieldErrors.profilePicture) {
+        setSaveError(err.message || 'Failed to upload profile picture');
+      }
+    } finally {
+      setIsUploadingImage(false);
+      event.target.value = '';
     }
   }
 
@@ -361,7 +409,9 @@ function JobSeekerProfilePage() {
         </div>
         <div className="profile-side-card">
           <img
-            src={isEditing ? (draft.profilePicture || '/default-profile.png') : profileData.profilePicture}
+            src={resolveProfileAssetUrl(
+              isEditing ? draft.profilePicture : profileData.profilePicture
+            )}
             alt="Profile Picture"
             className="profile-image"
           />
@@ -395,6 +445,20 @@ function JobSeekerProfilePage() {
             <p><strong>Email:</strong> {user?.email || 'N/A'}</p>
             {isEditing ? (
               <>
+                <label className="profile-field">
+                  <span>Upload Profile Picture</span>
+                  <input
+                    className={getControlClass('profile-file-input', 'profilePicture')}
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    onChange={handleProfilePictureUpload}
+                    disabled={isUploadingImage}
+                  />
+                </label>
+                <p className="profile-helper-copy">
+                  Upload a JPG, PNG, GIF, or WebP image up to 5 MB.
+                </p>
+                {isUploadingImage ? <p className="profile-helper-copy">Uploading image...</p> : null}
                 <label className="profile-field">
                   <span>Profile Picture URL</span>
                   <input

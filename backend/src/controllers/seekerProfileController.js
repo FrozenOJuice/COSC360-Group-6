@@ -4,6 +4,7 @@ import {
     updateCurrentSeekerProfile,
 } from "../services/seekerProfileService.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
+import { getUploadedProfileImagePath } from "../middleware/profileImageUpload.js";
 
 export const getSelfSeekerProfile = asyncHandler(async (req, res) => {
     const profile = await getCurrentSeekerProfile(req.auth?.userId);
@@ -12,6 +13,13 @@ export const getSelfSeekerProfile = asyncHandler(async (req, res) => {
 
 export const updateSelfSeekerProfile = asyncHandler(async (req, res) => {
     const profile = await updateCurrentSeekerProfile(req.auth?.userId, req.body);
+    res.status(200).json({ success: true, data: profile });
+});
+
+export const uploadSelfSeekerProfilePicture = asyncHandler(async (req, res) => {
+    const profile = await updateCurrentSeekerProfile(req.auth?.userId, {
+        profilePicture: getUploadedProfileImagePath(req.file),
+    });
     res.status(200).json({ success: true, data: profile });
 });
 

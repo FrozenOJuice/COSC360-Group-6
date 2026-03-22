@@ -2,9 +2,11 @@ import express from "express";
 import {
     getEmployerProfileByUserId,
     getSelfEmployerProfile,
+    uploadSelfEmployerProfileLogo,
     updateSelfEmployerProfile,
 } from "../controllers/employerProfileController.js";
 import { attachAuth } from "../middleware/attachAuth.js";
+import { uploadEmployerProfileLogo } from "../middleware/profileImageUpload.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { requireRole } from "../middleware/requireRole.js";
 import { validateBody } from "../middleware/validateBody.js";
@@ -20,6 +22,13 @@ router.put(
     requireRole("employer"),
     validateBody(updateEmployerProfileSchema),
     updateSelfEmployerProfile
+);
+router.post(
+    "/me/logo",
+    requireAuth,
+    requireRole("employer"),
+    uploadEmployerProfileLogo,
+    uploadSelfEmployerProfileLogo
 );
 router.get("/:userId", attachAuth, validateParams(profileUserParamsSchema), getEmployerProfileByUserId);
 
