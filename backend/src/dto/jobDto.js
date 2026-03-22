@@ -18,7 +18,6 @@ export function toJobDto(job, options = {}) {
         country: job.country,
         salary: job.salary,
         currency: job.currency,
-        exchangeRate: job.exchangeRate,
         createdAt: normalizeDate(job.createdAt),
         updatedAt: normalizeDate(job.updatedAt),
     };

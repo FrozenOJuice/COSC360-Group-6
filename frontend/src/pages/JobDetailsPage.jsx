@@ -14,16 +14,6 @@ function formatSalary(value, currency) {
   }).format(value)}${currency ? ` ${currency}` : ""}`;
 }
 
-function formatExchangeRate(value) {
-  if (typeof value !== "number" || Number.isNaN(value)) {
-    return "Unavailable";
-  }
-
-  return new Intl.NumberFormat("en-US", {
-    maximumFractionDigits: 4,
-  }).format(value);
-}
-
 function JobDetailsPage({ jobId: jobIdProp }) {
   const params = useParams();
   const jobId = jobIdProp ?? params.jobId;
@@ -69,7 +59,6 @@ function JobDetailsPage({ jobId: jobIdProp }) {
   }, [jobId]);
 
   const salaryLabel = formatSalary(job?.salary, job?.currency);
-  const exchangeRateLabel = formatExchangeRate(job?.exchangeRate);
   const subtitle = [job?.category, job?.country].filter(Boolean).join(" • ");
 
   return (
@@ -103,10 +92,6 @@ function JobDetailsPage({ jobId: jobIdProp }) {
               <div>
                 <dt>Currency</dt>
                 <dd>{job.currency || "Unavailable"}</dd>
-              </div>
-              <div>
-                <dt>Exchange Rate</dt>
-                <dd>{exchangeRateLabel}</dd>
               </div>
             </dl>
           </article>

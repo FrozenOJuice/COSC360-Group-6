@@ -42,11 +42,6 @@ const jobSchema = new mongoose.Schema(
             minlength: 2,
             maxlength: 10,
         },
-        exchangeRate: {
-            type: Number,
-            required: true,
-            min: 0,
-        },
     },
     {
         collection: "jobs",
@@ -70,7 +65,6 @@ jobSchema.index({ category: 1, _id: 1 }, { name: "job_category_sort" });
 jobSchema.index({ country: 1, _id: 1 }, { name: "job_country_sort" });
 jobSchema.index({ salary: 1, _id: 1 }, { name: "job_salary_sort" });
 jobSchema.index({ currency: 1, _id: 1 }, { name: "job_currency_sort" });
-jobSchema.index({ exchangeRate: 1, _id: 1 }, { name: "job_exchange_rate_sort" });
 jobSchema.index({ employerUserId: 1, _id: 1 }, { name: "job_employer_sort" });
 
 const Job = mongoose.models.Job || mongoose.model("Job", jobSchema);

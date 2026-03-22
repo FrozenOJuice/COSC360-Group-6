@@ -269,7 +269,6 @@ function JobsPage() {
               <option value="country">Country</option>
               <option value="salary">Salary</option>
               <option value="currency">Currency</option>
-              <option value="exchangeRate">Exchange rate</option>
             </select>
           </label>
 

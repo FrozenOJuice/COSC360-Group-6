@@ -72,9 +72,324 @@
   text-transform: lowercase;
 }
 
+.employer-management-section {
+  padding-top: 18px;
+}
+
+.employer-management-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.employer-job-editor,
+.employer-job-list-shell {
+  border: 1px solid #d6dfeb;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 16px 36px rgba(24, 33, 47, 0.08);
+}
+
+.employer-job-editor {
+  position: sticky;
+  top: 92px;
+  padding: 24px;
+}
+
+.employer-job-list-shell {
+  padding: 24px;
+}
+
+.employer-job-editor-header,
+.employer-job-list-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.employer-job-editor-header h2,
+.employer-job-list-header h2 {
+  margin: 0;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.employer-job-list-summary {
+  margin: 0;
+  color: #55657b;
+}
+
+.employer-job-status {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  line-height: 1.6;
+}
+
+.employer-job-status-success {
+  border: 1px solid #c7e5cc;
+  background: #f2fbf3;
+  color: #1e6a34;
+}
+
+.employer-job-status-error {
+  border: 1px solid #f2c3c6;
+  background: #fff3f4;
+  color: #8a2330;
+}
+
+.employer-job-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.employer-job-field,
+.employer-job-toolbar-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.employer-job-field-wide,
+.employer-job-toolbar-search {
+  grid-column: span 2;
+}
+
+.employer-job-field span,
+.employer-job-toolbar-field span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #516279;
+}
+
+.employer-job-input,
+.employer-job-secondary-button,
+.employer-job-action {
+  border: 1px solid #cfd8e7;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font: inherit;
+  color: #18212f;
+  background: rgba(248, 251, 255, 0.95);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.employer-job-input:focus,
+.employer-job-secondary-button:focus,
+.employer-job-action:focus {
+  outline: none;
+  border-color: #7394dc;
+  box-shadow: 0 0 0 4px rgba(49, 99, 212, 0.12);
+}
+
+.employer-job-input-error {
+  border-color: #d47a83;
+  box-shadow: 0 0 0 4px rgba(212, 122, 131, 0.12);
+}
+
+.employer-job-field-error {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #8a2330;
+}
+
+.employer-job-editor-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 22px;
+}
+
+.employer-job-submit {
+  border: none;
+  cursor: pointer;
+}
+
+.employer-job-secondary-button,
+.employer-job-action {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.employer-job-secondary-button {
+  border-color: #b7c4d8;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.employer-job-toolbar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.employer-page-status {
+  padding: 26px 0 12px;
+}
+
+.employer-job-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.employer-job-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px;
+  border: 1px solid #dde6f3;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(244, 248, 255, 0.8));
+}
+
+.employer-job-card-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.employer-job-card-header h3 {
+  margin: 6px 0 0;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.employer-job-card-label {
+  margin: 0;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #3163d4;
+}
+
+.employer-job-card-country {
+  border-radius: 999px;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #365177;
+  background: #eef3ff;
+}
+
+.employer-job-card-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.employer-job-card-metrics div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid #e1e8f4;
+}
+
+.employer-job-card-metrics span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #607188;
+}
+
+.employer-job-card-metrics strong {
+  font-size: 0.98rem;
+  line-height: 1.4;
+  color: #18212f;
+}
+
+.employer-job-card-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.employer-job-action {
+  flex: 1;
+}
+
+.employer-job-action-primary {
+  border-color: #18212f;
+  background: #18212f;
+  color: #f8fbff;
+}
+
+.employer-job-action-muted {
+  background: #ffffff;
+}
+
+.employer-job-pagination {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.employer-job-secondary-button:disabled,
+.employer-job-action:disabled,
+.employer-job-submit:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.employer-job-secondary-button:hover:not(:disabled),
+.employer-job-action:hover:not(:disabled),
+.employer-job-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
 @media (max-width: 900px) {
   .employer-hero {
     grid-template-columns: 1fr;
     padding-top: 42px;
+  }
+
+  .employer-management-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .employer-job-editor {
+    position: static;
+  }
+
+  .employer-job-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .employer-summary-stats,
+  .employer-job-form-grid,
+  .employer-job-toolbar,
+  .employer-job-card-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .employer-job-field-wide,
+  .employer-job-toolbar-search {
+    grid-column: span 1;
+  }
+
+  .employer-job-editor-header,
+  .employer-job-list-header,
+  .employer-job-card-header,
+  .employer-job-card-actions,
+  .employer-job-pagination {
+    flex-direction: column;
+    align-items: stretch;
   }
 }

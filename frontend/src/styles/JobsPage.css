@@ -74,6 +74,7 @@
 
 .jobs-autocomplete-shell {
   position: relative;
+  width: 100%;
 }
 
 .jobs-filter-search {
@@ -92,6 +93,8 @@
 .jobs-filter-field select,
 .jobs-clear-button,
 .jobs-pagination button {
+  width: 100%;
+  box-sizing: border-box;
   border: 1px solid #cfd8e7;
   border-radius: 14px;
   padding: 12px 14px;

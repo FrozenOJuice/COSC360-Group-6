@@ -11,7 +11,7 @@ import { toJobDto } from "../dto/jobDto.js";
 import { normalizeTextSearch, toPositiveInt } from "./queryUtils.js";
 import { appError } from "../utils/appError.js";
 
-const SORT_FIELDS = new Set(["title", "category", "country", "salary", "currency", "exchangeRate"]);
+const SORT_FIELDS = new Set(["title", "category", "country", "salary", "currency"]);
 
 function normalizeJobFilterOptions(options = {}) {
     return {
@@ -117,7 +117,6 @@ function buildManagedJobPayload(payload = {}) {
         country: payload.country,
         salary: payload.salary,
         currency: payload.currency,
-        exchangeRate: payload.exchangeRate,
     };
 
     return Object.fromEntries(
