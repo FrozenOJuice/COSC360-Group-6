@@ -51,7 +51,7 @@ export async function listUsers(filters = {}, options = {}) {
         query.limit(options.limit);
     }
 
-    return query.exec();
+    return query.lean().exec();
 }
 
 export async function countUsers(filters = {}) {

@@ -48,5 +48,23 @@ const jobSchema = new mongoose.Schema(
     }
 );
 
+jobSchema.index(
+    { title: "text", category: "text", country: "text" },
+    {
+        name: "job_text_search",
+        weights: {
+            title: 6,
+            category: 3,
+            country: 2,
+        },
+    }
+);
+jobSchema.index({ title: 1, _id: 1 }, { name: "job_title_sort" });
+jobSchema.index({ category: 1, _id: 1 }, { name: "job_category_sort" });
+jobSchema.index({ country: 1, _id: 1 }, { name: "job_country_sort" });
+jobSchema.index({ salary: 1, _id: 1 }, { name: "job_salary_sort" });
+jobSchema.index({ currency: 1, _id: 1 }, { name: "job_currency_sort" });
+jobSchema.index({ exchangeRate: 1, _id: 1 }, { name: "job_exchange_rate_sort" });
+
 const Job = mongoose.models.Job || mongoose.model("Job", jobSchema);
 export default Job;

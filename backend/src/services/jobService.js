@@ -5,25 +5,26 @@ import {
     listJobs,
 } from "../repositories/jobRepository.js";
 import { toJobDto } from "../dto/jobDto.js";
-import { escapeRegex, toPositiveInt } from "./queryUtils.js";
+import { normalizeTextSearch, toPositiveInt } from "./queryUtils.js";
 import { appError } from "../utils/appError.js";
 
 const SORT_FIELDS = new Set(["title", "category", "country", "salary", "currency", "exchangeRate"]);
 
+function normalizeJobFilterOptions(options = {}) {
+    return {
+        search: normalizeTextSearch(options.search),
+        category: typeof options.category === "string" ? options.category.trim() : "",
+        country: typeof options.country === "string" ? options.country.trim() : "",
+        currency: typeof options.currency === "string" ? options.currency.trim().toUpperCase() : "",
+    };
+}
+
 function buildJobFilters(options = {}) {
     const filters = {};
-    const search = typeof options.search === "string" ? options.search.trim() : "";
-    const category = typeof options.category === "string" ? options.category.trim() : "";
-    const country = typeof options.country === "string" ? options.country.trim() : "";
-    const currency = typeof options.currency === "string" ? options.currency.trim().toUpperCase() : "";
+    const { search, category, country, currency } = normalizeJobFilterOptions(options);
 
     if (search) {
-        const pattern = new RegExp(escapeRegex(search), "i");
-        filters.$or = [
-            { title: pattern },
-            { category: pattern },
-            { country: pattern },
-        ];
+        filters.$text = { $search: search };
     }
 
     if (category) {
@@ -38,15 +39,20 @@ function buildJobFilters(options = {}) {
         filters.currency = currency;
     }
 
-    return filters;
+    return {
+        filters,
+        normalizedFilters: {
+            search,
+            category,
+            country,
+            currency,
+        },
+    };
 }
 
 export async function listBoardJobs(options = {}) {
-    const filters = buildJobFilters(options);
-    const search = typeof options.search === "string" ? options.search.trim() : "";
-    const category = typeof options.category === "string" ? options.category.trim() : "";
-    const country = typeof options.country === "string" ? options.country.trim() : "";
-    const currency = typeof options.currency === "string" ? options.currency.trim().toUpperCase() : "";
+    const { filters, normalizedFilters } = buildJobFilters(options);
+    const { search, category, country, currency } = normalizedFilters;
     const page = toPositiveInt(options.page, 1);
     const limit = toPositiveInt(options.limit, 25);
     const sortBy = SORT_FIELDS.has(options.sortBy) ? options.sortBy : "title";
@@ -55,7 +61,7 @@ export async function listBoardJobs(options = {}) {
     const skip = (page - 1) * limit;
     const sort = {
         [sortBy]: sortDirection,
-        _id: 1,
+        _id: sortDirection,
     };
 
     const [jobs, total] = await Promise.all([

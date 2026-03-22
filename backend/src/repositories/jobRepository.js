@@ -1,7 +1,7 @@
 import Job from "../models/Job.js";
 
 export async function findJobById(jobId) {
-    return Job.findById(jobId).exec();
+    return Job.findById(jobId).lean().exec();
 }
 
 export async function listJobs(filters = {}, options = {}) {
@@ -19,7 +19,7 @@ export async function listJobs(filters = {}, options = {}) {
         query.limit(options.limit);
     }
 
-    return query.exec();
+    return query.lean().exec();
 }
 
 export async function countJobs(filters = {}) {

@@ -46,6 +46,20 @@ const userSchema = new mongoose.Schema({
     },
 });
 
+userSchema.index(
+    { name: "text", email: "text" },
+    {
+        name: "user_text_search",
+        weights: {
+            email: 6,
+            name: 3,
+        },
+    }
+);
+userSchema.index({ name: 1, _id: 1 }, { name: "user_name_sort" });
+userSchema.index({ role: 1, _id: 1 }, { name: "user_role_sort" });
+userSchema.index({ status: 1, _id: 1 }, { name: "user_status_sort" });
+
 userSchema.pre("save", async function () {
     if (!this.isModified("password")) return;
 

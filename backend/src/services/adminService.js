@@ -6,24 +6,26 @@ import {
     updateUserStatus,
 } from "../repositories/userRepository.js";
 import { toUserDto } from "../dto/userDto.js";
-import { escapeRegex, toPositiveInt } from "./queryUtils.js";
+import { normalizeTextSearch, toPositiveInt } from "./queryUtils.js";
 import { appError } from "../utils/appError.js";
 
 const USER_STATUSES = new Set(["active", "disabled"]);
 const SORT_FIELDS = new Set(["name", "email", "role", "status"]);
 
+function normalizeUserFilterOptions(options = {}) {
+    return {
+        search: normalizeTextSearch(options.search),
+        role: typeof options.role === "string" ? options.role.trim() : "",
+        status: typeof options.status === "string" ? options.status.trim() : "",
+    };
+}
+
 function buildUserFilters(options = {}) {
     const filters = {};
-    const search = typeof options.search === "string" ? options.search.trim() : "";
-    const role = typeof options.role === "string" ? options.role.trim() : "";
-    const status = typeof options.status === "string" ? options.status.trim() : "";
+    const { search, role, status } = normalizeUserFilterOptions(options);
 
     if (search) {
-        const pattern = new RegExp(escapeRegex(search), "i");
-        filters.$or = [
-            { name: pattern },
-            { email: pattern },
-        ];
+        filters.$text = { $search: search };
     }
 
     if (role) {
@@ -34,11 +36,19 @@ function buildUserFilters(options = {}) {
         filters.status = status;
     }
 
-    return filters;
+    return {
+        filters,
+        normalizedFilters: {
+            search,
+            role,
+            status,
+        },
+    };
 }
 
 export async function listAdminUsers(options = {}) {
-    const filters = buildUserFilters(options);
+    const { filters, normalizedFilters } = buildUserFilters(options);
+    const { search, role, status } = normalizedFilters;
     const page = toPositiveInt(options.page, 1);
     const limit = toPositiveInt(options.limit, 25);
     const sortBy = SORT_FIELDS.has(options.sortBy) ? options.sortBy : "name";
@@ -47,7 +57,7 @@ export async function listAdminUsers(options = {}) {
     const start = (page - 1) * limit;
     const sort = {
         [sortBy]: sortDirection,
-        _id: 1,
+        _id: sortDirection,
     };
     const [users, total] = await Promise.all([
         listUsers(filters, { sort, skip: start, limit }),
@@ -67,9 +77,9 @@ export async function listAdminUsers(options = {}) {
             order: sortOrder,
         },
         filters: {
-            search: typeof options.search === "string" ? options.search.trim() : "",
-            role: typeof options.role === "string" ? options.role.trim() : "",
-            status: typeof options.status === "string" ? options.status.trim() : "",
+            search,
+            role,
+            status,
         },
     };
 }
