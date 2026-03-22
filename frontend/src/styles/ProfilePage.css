@@ -140,6 +140,16 @@
   box-shadow: 0 0 0 3px rgba(24, 33, 47, 0.1);
 }
 
+.profile-control-error {
+  border-color: #d06a6a;
+  background: #fff7f7;
+}
+
+.profile-control-error:focus {
+  border-color: #c24d4d;
+  box-shadow: 0 0 0 3px rgba(194, 77, 77, 0.12);
+}
+
 .profile-array-editor {
   display: flex;
   flex-direction: column;
@@ -219,6 +229,13 @@
 .profile-status-success {
   background: #eef9f1;
   color: #23623a;
+}
+
+.profile-field-error {
+  margin: 8px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #a12727;
 }
 
 .profile-link {

@@ -15,6 +15,12 @@ const emptyStringToUndefined = (value) => {
 const optionalTrimmedString = (schema) =>
     z.preprocess(emptyStringToUndefined, schema.optional());
 
+const optionalTrimmedStringAllowEmpty = (schema) =>
+    z.preprocess(
+        (value) => (typeof value === "string" ? value.trim() : value),
+        schema.optional()
+    );
+
 const optionalStringArray = (fieldName) =>
     z.preprocess(
         (value) => {
@@ -65,9 +71,8 @@ export const profileUserParamsSchema = z.object({
 }).strict();
 
 export const updateSeekerProfileSchema = z.object({
-    bio: optionalTrimmedString(
+    bio: optionalTrimmedStringAllowEmpty(
         z.string()
-            .min(2, "Bio must be at least 2 characters")
             .max(500, "Bio must be at most 500 characters")
     ),
     jobExperience: optionalStringArray("Job experience"),

@@ -20,7 +20,6 @@ const seekerProfileSchema = new mongoose.Schema({
     bio: {
         type: String,
         trim: true,
-        minlength: 2,
         maxlength: 500,
     },
     jobExperience: buildStringArrayField("Job experience"),

@@ -33,6 +33,7 @@ function JobSeekerProfilePage() {
   const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [draft, setDraft] = useState(createSeekerDraft(null));
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -66,6 +67,15 @@ function JobSeekerProfilePage() {
       ...currentDraft,
       [name]: value,
     }));
+    setFieldErrors((currentErrors) => {
+      if (!currentErrors[name]) {
+        return currentErrors;
+      }
+
+      const nextErrors = { ...currentErrors };
+      delete nextErrors[name];
+      return nextErrors;
+    });
   }
 
   function handleListItemChange(fieldName, index, value) {
@@ -75,6 +85,15 @@ function JobSeekerProfilePage() {
         itemIndex === index ? value : item
       )),
     }));
+    setFieldErrors((currentErrors) => {
+      if (!currentErrors[fieldName]) {
+        return currentErrors;
+      }
+
+      const nextErrors = { ...currentErrors };
+      delete nextErrors[fieldName];
+      return nextErrors;
+    });
   }
 
   function handleAddListItem(fieldName) {
@@ -97,6 +116,7 @@ function JobSeekerProfilePage() {
 
   function handleStartEditing() {
     setDraft(createSeekerDraft(profile));
+    setFieldErrors({});
     setSaveError('');
     setSaveSuccess('');
     setIsEditing(true);
@@ -104,6 +124,7 @@ function JobSeekerProfilePage() {
 
   function handleCancelEditing() {
     setDraft(createSeekerDraft(profile));
+    setFieldErrors({});
     setSaveError('');
     setSaveSuccess('');
     setIsEditing(false);
@@ -112,6 +133,7 @@ function JobSeekerProfilePage() {
   async function handleSubmit(event) {
     event.preventDefault();
     setIsSaving(true);
+    setFieldErrors({});
     setSaveError('');
     setSaveSuccess('');
 
@@ -132,10 +154,16 @@ function JobSeekerProfilePage() {
       setIsEditing(false);
       setSaveSuccess('Profile updated successfully.');
     } catch (err) {
-      setSaveError(err.message || 'Failed to update profile');
+      const nextFieldErrors = err?.fieldErrors || {};
+      setFieldErrors(nextFieldErrors);
+      setSaveError(Object.keys(nextFieldErrors).length === 0 ? (err.message || 'Failed to update profile') : '');
     } finally {
       setIsSaving(false);
     }
+  }
+
+  function getControlClass(baseClass, fieldName) {
+    return fieldErrors[fieldName] ? `${baseClass} profile-control-error` : baseClass;
   }
 
   if (loading) {
@@ -203,7 +231,7 @@ function JobSeekerProfilePage() {
             <h2>Bio</h2>
             {isEditing ? (
               <textarea
-                className="profile-textarea"
+                className={getControlClass('profile-textarea', 'bio')}
                 name="bio"
                 value={draft.bio}
                 onChange={handleDraftChange}
@@ -212,6 +240,7 @@ function JobSeekerProfilePage() {
             ) : (
               <p>{profileData.bio}</p>
             )}
+            {isEditing && fieldErrors.bio ? <p className="profile-field-error">{fieldErrors.bio}</p> : null}
           </div>
           <div className="profile-section">
             <h2>Job Experience</h2>
@@ -221,7 +250,7 @@ function JobSeekerProfilePage() {
                 {draft.jobExperience.map((job, index) => (
                   <div key={`job-experience-${index}`} className="profile-array-row">
                     <input
-                      className="profile-input"
+                      className={getControlClass('profile-input', 'jobExperience')}
                       type="text"
                       value={job}
                       onChange={(event) => handleListItemChange('jobExperience', index, event.target.value)}
@@ -244,6 +273,7 @@ function JobSeekerProfilePage() {
                 >
                   Add Experience
                 </button>
+                {fieldErrors.jobExperience ? <p className="profile-field-error">{fieldErrors.jobExperience}</p> : null}
               </div>
             ) : (
               <ul>
@@ -261,7 +291,7 @@ function JobSeekerProfilePage() {
                 {draft.education.map((edu, index) => (
                   <div key={`education-${index}`} className="profile-array-row">
                     <input
-                      className="profile-input"
+                      className={getControlClass('profile-input', 'education')}
                       type="text"
                       value={edu}
                       onChange={(event) => handleListItemChange('education', index, event.target.value)}
@@ -284,6 +314,7 @@ function JobSeekerProfilePage() {
                 >
                   Add Education
                 </button>
+                {fieldErrors.education ? <p className="profile-field-error">{fieldErrors.education}</p> : null}
               </div>
             ) : (
               <ul>
@@ -297,7 +328,7 @@ function JobSeekerProfilePage() {
             <h2>Current Job Position</h2>
             {isEditing ? (
               <input
-                className="profile-input"
+                className={getControlClass('profile-input', 'currentPosition')}
                 type="text"
                 name="currentPosition"
                 value={draft.currentPosition}
@@ -306,12 +337,13 @@ function JobSeekerProfilePage() {
             ) : (
               <p>{profileData.currentPosition}</p>
             )}
+            {isEditing && fieldErrors.currentPosition ? <p className="profile-field-error">{fieldErrors.currentPosition}</p> : null}
           </div>
           <div className="profile-section">
             <h2>Resume</h2>
             {isEditing ? (
               <input
-                className="profile-input"
+                className={getControlClass('profile-input', 'resumeLink')}
                 type="text"
                 name="resumeLink"
                 value={draft.resumeLink}
@@ -324,6 +356,7 @@ function JobSeekerProfilePage() {
             ) : (
               <p>No resume link available.</p>
             )}
+            {isEditing && fieldErrors.resumeLink ? <p className="profile-field-error">{fieldErrors.resumeLink}</p> : null}
           </div>
         </div>
         <div className="profile-side-card">
@@ -344,7 +377,7 @@ function JobSeekerProfilePage() {
               <label className="profile-field profile-visibility-field">
                 <span>Who can view this profile</span>
                 <select
-                  className="profile-select"
+                  className={getControlClass('profile-select', 'visibility')}
                   name="visibility"
                   value={draft.visibility}
                   onChange={handleDraftChange}
@@ -354,6 +387,7 @@ function JobSeekerProfilePage() {
                 </select>
               </label>
             ) : null}
+            {isEditing && fieldErrors.visibility ? <p className="profile-field-error">{fieldErrors.visibility}</p> : null}
           </div>
           <div className="profile-side-details">
             <h2>Personal Information</h2>
@@ -364,23 +398,25 @@ function JobSeekerProfilePage() {
                 <label className="profile-field">
                   <span>Profile Picture URL</span>
                   <input
-                    className="profile-input"
+                    className={getControlClass('profile-input', 'profilePicture')}
                     type="text"
                     name="profilePicture"
                     value={draft.profilePicture}
                     onChange={handleDraftChange}
                   />
                 </label>
+                {fieldErrors.profilePicture ? <p className="profile-field-error">{fieldErrors.profilePicture}</p> : null}
                 <label className="profile-field">
                   <span>Phone Number</span>
                   <input
-                    className="profile-input"
+                    className={getControlClass('profile-input', 'phone')}
                     type="text"
                     name="phone"
                     value={draft.phone}
                     onChange={handleDraftChange}
                   />
                 </label>
+                {fieldErrors.phone ? <p className="profile-field-error">{fieldErrors.phone}</p> : null}
               </>
             ) : (
               <p><strong>Phone Number:</strong> {profileData.phone}</p>

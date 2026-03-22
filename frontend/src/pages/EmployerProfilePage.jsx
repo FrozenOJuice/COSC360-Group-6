@@ -23,6 +23,7 @@ function EmployerProfilePage() {
   const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [draft, setDraft] = useState(createEmployerDraft(null, null));
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -56,10 +57,20 @@ function EmployerProfilePage() {
       ...currentDraft,
       [name]: value,
     }));
+    setFieldErrors((currentErrors) => {
+      if (!currentErrors[name]) {
+        return currentErrors;
+      }
+
+      const nextErrors = { ...currentErrors };
+      delete nextErrors[name];
+      return nextErrors;
+    });
   }
 
   function handleStartEditing() {
     setDraft(createEmployerDraft(profile, user));
+    setFieldErrors({});
     setSaveError("");
     setSaveSuccess("");
     setIsEditing(true);
@@ -67,6 +78,7 @@ function EmployerProfilePage() {
 
   function handleCancelEditing() {
     setDraft(createEmployerDraft(profile, user));
+    setFieldErrors({});
     setSaveError("");
     setSaveSuccess("");
     setIsEditing(false);
@@ -75,6 +87,7 @@ function EmployerProfilePage() {
   async function handleSubmit(event) {
     event.preventDefault();
     setIsSaving(true);
+    setFieldErrors({});
     setSaveError("");
     setSaveSuccess("");
 
@@ -95,10 +108,16 @@ function EmployerProfilePage() {
       setIsEditing(false);
       setSaveSuccess("Employer profile updated successfully.");
     } catch (err) {
-      setSaveError(err.message || "Failed to update employer profile");
+      const nextFieldErrors = err?.fieldErrors || {};
+      setFieldErrors(nextFieldErrors);
+      setSaveError(Object.keys(nextFieldErrors).length === 0 ? (err.message || "Failed to update employer profile") : "");
     } finally {
       setIsSaving(false);
     }
+  }
+
+  function getControlClass(baseClass, fieldName) {
+    return fieldErrors[fieldName] ? `${baseClass} profile-control-error` : baseClass;
   }
 
   if (loading) {
@@ -166,7 +185,7 @@ function EmployerProfilePage() {
             <h2>Company Name</h2>
             {isEditing ? (
               <input
-                className="profile-input"
+                className={getControlClass("profile-input", "companyName")}
                 type="text"
                 name="companyName"
                 value={draft.companyName}
@@ -175,12 +194,13 @@ function EmployerProfilePage() {
             ) : (
               <p>{profileData.companyName}</p>
             )}
+            {isEditing && fieldErrors.companyName ? <p className="profile-field-error">{fieldErrors.companyName}</p> : null}
           </div>
           <div className="profile-section">
             <h2>Company Description</h2>
             {isEditing ? (
               <textarea
-                className="profile-textarea"
+                className={getControlClass("profile-textarea", "companyDescription")}
                 name="companyDescription"
                 value={draft.companyDescription}
                 onChange={handleDraftChange}
@@ -189,12 +209,13 @@ function EmployerProfilePage() {
             ) : (
               <p>{profileData.companyDescription}</p>
             )}
+            {isEditing && fieldErrors.companyDescription ? <p className="profile-field-error">{fieldErrors.companyDescription}</p> : null}
           </div>
           <div className="profile-section">
             <h2>Location</h2>
             {isEditing ? (
               <input
-                className="profile-input"
+                className={getControlClass("profile-input", "location")}
                 type="text"
                 name="location"
                 value={draft.location}
@@ -203,12 +224,13 @@ function EmployerProfilePage() {
             ) : (
               <p>{profileData.location}</p>
             )}
+            {isEditing && fieldErrors.location ? <p className="profile-field-error">{fieldErrors.location}</p> : null}
           </div>
           <div className="profile-section">
             <h2>Website</h2>
             {isEditing ? (
               <input
-                className="profile-input"
+                className={getControlClass("profile-input", "website")}
                 type="text"
                 name="website"
                 value={draft.website}
@@ -221,6 +243,7 @@ function EmployerProfilePage() {
             ) : (
               <p>No website available.</p>
             )}
+            {isEditing && fieldErrors.website ? <p className="profile-field-error">{fieldErrors.website}</p> : null}
           </div>
         </div>
         <div className="profile-side-card">
@@ -241,7 +264,7 @@ function EmployerProfilePage() {
               <label className="profile-field profile-visibility-field">
                 <span>Who can view this profile</span>
                 <select
-                  className="profile-select"
+                  className={getControlClass("profile-select", "visibility")}
                   name="visibility"
                   value={draft.visibility}
                   onChange={handleDraftChange}
@@ -251,6 +274,7 @@ function EmployerProfilePage() {
                 </select>
               </label>
             ) : null}
+            {isEditing && fieldErrors.visibility ? <p className="profile-field-error">{fieldErrors.visibility}</p> : null}
           </div>
           <div className="profile-side-details">
             <h2>Contact Information</h2>
@@ -261,33 +285,36 @@ function EmployerProfilePage() {
                 <label className="profile-field">
                   <span>Logo URL</span>
                   <input
-                    className="profile-input"
+                    className={getControlClass("profile-input", "logo")}
                     type="text"
                     name="logo"
                     value={draft.logo}
                     onChange={handleDraftChange}
                   />
                 </label>
+                {fieldErrors.logo ? <p className="profile-field-error">{fieldErrors.logo}</p> : null}
                 <label className="profile-field">
                   <span>Contact Email</span>
                   <input
-                    className="profile-input"
+                    className={getControlClass("profile-input", "contactEmail")}
                     type="text"
                     name="contactEmail"
                     value={draft.contactEmail}
                     onChange={handleDraftChange}
                   />
                 </label>
+                {fieldErrors.contactEmail ? <p className="profile-field-error">{fieldErrors.contactEmail}</p> : null}
                 <label className="profile-field">
                   <span>Contact Phone</span>
                   <input
-                    className="profile-input"
+                    className={getControlClass("profile-input", "contactPhone")}
                     type="text"
                     name="contactPhone"
                     value={draft.contactPhone}
                     onChange={handleDraftChange}
                   />
                 </label>
+                {fieldErrors.contactPhone ? <p className="profile-field-error">{fieldErrors.contactPhone}</p> : null}
               </>
             ) : (
               <>

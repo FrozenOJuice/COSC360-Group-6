@@ -1,5 +1,5 @@
 import { apiFetch } from "./api.js";
-import { getResponseMessage } from "./responseMessage.js";
+import { createResponseError } from "./responseMessage.js";
 
 export async function getCurrentEmployerProfile() {
   const response = await apiFetch("/api/employer-profile/me", {
@@ -7,7 +7,7 @@ export async function getCurrentEmployerProfile() {
   });
 
   if (!response.ok) {
-    throw new Error(await getResponseMessage(response, "Failed to fetch employer profile"));
+    throw await createResponseError(response, "Failed to fetch employer profile");
   }
 
   const data = await response.json();
@@ -20,7 +20,7 @@ export async function getEmployerProfileByUserId(userId) {
   });
 
   if (!response.ok) {
-    throw new Error(await getResponseMessage(response, "Failed to fetch employer profile"));
+    throw await createResponseError(response, "Failed to fetch employer profile");
   }
 
   const data = await response.json();
@@ -37,7 +37,7 @@ export async function updateCurrentEmployerProfile(profileData) {
   });
 
   if (!response.ok) {
-    throw new Error(await getResponseMessage(response, "Failed to update employer profile"));
+    throw await createResponseError(response, "Failed to update employer profile");
   }
 
   const data = await response.json();
