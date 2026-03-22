@@ -1,12 +1,12 @@
 import multer from "multer";
 import { appError } from "../utils/appError.js";
 
-const IMAGE_EXTENSION_BY_TYPE = Object.freeze({
-    "image/jpeg": ".jpg",
-    "image/png": ".png",
-    "image/gif": ".gif",
-    "image/webp": ".webp",
-});
+const ALLOWED_IMAGE_TYPES = new Set([
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+]);
 
 function createUploadError(field, message) {
     return appError("INVALID_REQUEST", message, [{
@@ -15,14 +15,14 @@ function createUploadError(field, message) {
     }]);
 }
 
-function createImageUploadMiddleware({ fieldName, filenamePrefix }) {
+function createImageUploadMiddleware({ fieldName }) {
     const upload = multer({
         storage: multer.memoryStorage(),
         limits: {
             fileSize: 5 * 1024 * 1024,
         },
         fileFilter: (_req, file, callback) => {
-            if (!IMAGE_EXTENSION_BY_TYPE[file.mimetype]) {
+            if (!ALLOWED_IMAGE_TYPES.has(file.mimetype)) {
                 callback(createUploadError(
                     fieldName,
                     "Image must be a JPG, PNG, GIF, or WebP file"

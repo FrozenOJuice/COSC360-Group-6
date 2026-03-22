@@ -1,21 +1,14 @@
 import { z } from "zod";
+import {
+    buildObjectIdSchema,
+    createLimitQuerySchema,
+    createPageQuerySchema,
+    optionalTrimmedString,
+} from "./schemaUtils.js";
 
 const USER_ROLES = ["seeker", "employer", "admin"];
 const USER_STATUSES = ["active", "disabled"];
 const USER_SORT_FIELDS = ["name", "email", "role", "status"];
-const OBJECT_ID_PATTERN = /^[0-9a-fA-F]{24}$/;
-
-const emptyStringToUndefined = (value) => {
-    if (typeof value !== "string") {
-        return value;
-    }
-
-    const trimmed = value.trim();
-    return trimmed === "" ? undefined : trimmed;
-};
-
-const optionalTrimmedString = (schema) =>
-    z.preprocess(emptyStringToUndefined, schema.optional());
 
 export const listUsersQuerySchema = z.object({
     search: optionalTrimmedString(
@@ -35,15 +28,8 @@ export const listUsersQuerySchema = z.object({
     sortOrder: optionalTrimmedString(
         z.enum(["asc", "desc"], { error: "Sort order must be asc or desc" })
     ),
-    page: z.coerce.number()
-        .int("Page must be an integer")
-        .min(1, "Page must be at least 1")
-        .default(1),
-    limit: z.coerce.number()
-        .int("Limit must be an integer")
-        .min(1, "Limit must be at least 1")
-        .max(100, "Limit must be at most 100")
-        .default(25),
+    page: createPageQuerySchema(),
+    limit: createLimitQuerySchema(),
 }).strict();
 
 export const updateUserStatusSchema = z.object({
@@ -53,13 +39,9 @@ export const updateUserStatusSchema = z.object({
 }).strict();
 
 export const updateUserStatusParamsSchema = z.object({
-    id: z.string()
-        .trim()
-        .regex(OBJECT_ID_PATTERN, "User id must be a valid MongoDB ObjectId"),
+    id: buildObjectIdSchema("User id"),
 }).strict();
 
 export const adminUserParamsSchema = z.object({
-    id: z.string()
-        .trim()
-        .regex(OBJECT_ID_PATTERN, "User id must be a valid MongoDB ObjectId"),
+    id: buildObjectIdSchema("User id"),
 }).strict();

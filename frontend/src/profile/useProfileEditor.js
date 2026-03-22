@@ -48,26 +48,23 @@ export function useProfileEditor({
     let cancelled = false;
 
     async function syncProfile() {
-      try {
-        const nextProfile = await loadProfile();
+      const result = await loadProfile();
 
-        if (cancelled) {
-          return;
-        }
-
-        setRawProfile(nextProfile);
-        setDraft(createDraft(nextProfile, user));
-        setError(null);
-        setResolvedUserId(currentUserId);
-      } catch (err) {
-        if (cancelled) {
-          return;
-        }
-
-        setRawProfile(null);
-        setError(err.message || loadErrorMessage);
-        setResolvedUserId(currentUserId);
+      if (cancelled) {
+        return;
       }
+
+      if (!result.ok) {
+        setRawProfile(null);
+        setError(result.error?.message || loadErrorMessage);
+        setResolvedUserId(currentUserId);
+        return;
+      }
+
+      setRawProfile(result.data);
+      setDraft(createDraft(result.data, user));
+      setError(null);
+      setResolvedUserId(currentUserId);
     }
 
     void syncProfile();
@@ -124,13 +121,24 @@ export function useProfileEditor({
     clearStatus();
 
     try {
-      const updatedProfile = await saveProfile(buildSavePayload(draft));
-      setRawProfile(updatedProfile);
+      const result = await saveProfile(buildSavePayload(draft));
+      if (!result.ok) {
+        const nextFieldErrors = result.error?.fieldErrors || {};
+        setFieldErrors(nextFieldErrors);
+        setSaveError(
+          Object.keys(nextFieldErrors).length === 0
+            ? (result.error?.message || saveErrorMessage)
+            : ""
+        );
+        return result;
+      }
+
+      setRawProfile(result.data);
       setResolvedUserId(currentUserId);
-      setDraft(createDraft(updatedProfile, user));
+      setDraft(createDraft(result.data, user));
       setIsEditing(false);
       setSaveSuccess(saveSuccessMessage);
-      return updatedProfile;
+      return result;
     } catch (err) {
       const nextFieldErrors = err?.fieldErrors || {};
       setFieldErrors(nextFieldErrors);
@@ -151,15 +159,29 @@ export function useProfileEditor({
     clearFieldError(imageFieldName);
 
     try {
-      const updatedProfile = await uploadImage(file);
-      setRawProfile(updatedProfile);
+      const result = await uploadImage(file);
+      if (!result.ok) {
+        const nextFieldErrors = result.error?.fieldErrors || {};
+        setFieldErrors((currentFieldErrors) => ({
+          ...currentFieldErrors,
+          ...nextFieldErrors,
+        }));
+
+        if (!nextFieldErrors[imageFieldName]) {
+          setSaveError(result.error?.message || uploadErrorMessage);
+        }
+
+        return result;
+      }
+
+      setRawProfile(result.data);
       setResolvedUserId(currentUserId);
       setDraft((currentDraft) => ({
         ...currentDraft,
-        [imageFieldName]: updatedProfile[imageFieldName],
+        [imageFieldName]: result.data[imageFieldName],
       }));
       setSaveSuccess(uploadSuccessMessage);
-      return updatedProfile;
+      return result;
     } catch (err) {
       const nextFieldErrors = err?.fieldErrors || {};
       setFieldErrors((currentFieldErrors) => ({
@@ -183,15 +205,29 @@ export function useProfileEditor({
     clearFieldError(imageFieldName);
 
     try {
-      const updatedProfile = await removeImage();
-      setRawProfile(updatedProfile);
+      const result = await removeImage();
+      if (!result.ok) {
+        const nextFieldErrors = result.error?.fieldErrors || {};
+        setFieldErrors((currentFieldErrors) => ({
+          ...currentFieldErrors,
+          ...nextFieldErrors,
+        }));
+
+        if (!nextFieldErrors[imageFieldName]) {
+          setSaveError(result.error?.message || removeErrorMessage);
+        }
+
+        return result;
+      }
+
+      setRawProfile(result.data);
       setResolvedUserId(currentUserId);
       setDraft((currentDraft) => ({
         ...currentDraft,
-        [imageFieldName]: updatedProfile[imageFieldName],
+        [imageFieldName]: result.data[imageFieldName],
       }));
       setSaveSuccess(removeSuccessMessage);
-      return updatedProfile;
+      return result;
     } catch (err) {
       const nextFieldErrors = err?.fieldErrors || {};
       setFieldErrors((currentFieldErrors) => ({

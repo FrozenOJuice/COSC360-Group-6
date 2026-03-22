@@ -35,14 +35,10 @@ export async function setSeekerProfilePicture(profileId, pictureData) {
                 profilePictureContentType: pictureData.contentType,
                 hasUploadedProfilePicture: true,
             },
-            $unset: {
-                profilePicture: 1,
-            },
         },
         {
             new: true,
             runValidators: true,
-            strict: false,
         }
     ).exec();
 }
@@ -55,7 +51,6 @@ export async function clearSeekerProfilePicture(profileId) {
                 hasUploadedProfilePicture: false,
             },
             $unset: {
-                profilePicture: 1,
                 profilePictureData: 1,
                 profilePictureContentType: 1,
             },
@@ -63,7 +58,6 @@ export async function clearSeekerProfilePicture(profileId) {
         {
             new: true,
             runValidators: true,
-            strict: false,
         }
     ).exec();
 }

@@ -5,19 +5,11 @@ import {
     listUsers,
     updateUserStatus,
 } from "../repositories/userRepository.js";
+import { escapeRegex, toPositiveInt } from "./queryUtils.js";
 import { appError } from "../utils/appError.js";
 
 const USER_STATUSES = new Set(["active", "disabled"]);
 const SORT_FIELDS = new Set(["name", "email", "role", "status"]);
-
-function escapeRegex(value) {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function toPositiveInt(value, fallback) {
-    const parsed = Number.parseInt(value, 10);
-    return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
-}
 
 function normalizeUser(user) {
     return {

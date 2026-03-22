@@ -35,14 +35,10 @@ export async function setEmployerProfileLogo(profileId, logoData) {
                 logoContentType: logoData.contentType,
                 hasUploadedLogo: true,
             },
-            $unset: {
-                logo: 1,
-            },
         },
         {
             new: true,
             runValidators: true,
-            strict: false,
         }
     ).exec();
 }
@@ -55,7 +51,6 @@ export async function clearEmployerProfileLogo(profileId) {
                 hasUploadedLogo: false,
             },
             $unset: {
-                logo: 1,
                 logoData: 1,
                 logoContentType: 1,
             },
@@ -63,7 +58,6 @@ export async function clearEmployerProfileLogo(profileId) {
         {
             new: true,
             runValidators: true,
-            strict: false,
         }
     ).exec();
 }

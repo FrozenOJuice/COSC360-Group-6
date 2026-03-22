@@ -26,13 +26,17 @@ function AdminProfilePage({ profileRole, userId }) {
     const userRequest = fetchAdminUserById(userId);
 
     Promise.all([profileRequest, userRequest])
-      .then(([profileData, userResponse]) => {
+      .then(([profileResponse, userResponse]) => {
         if (!cancelled) {
-          if (!userResponse.ok) {
-            throw new Error(userResponse.data?.message || "Failed to load user");
+          if (!profileResponse.ok) {
+            throw profileResponse.error || new Error("Failed to load profile");
           }
 
-          setProfile(profileData);
+          if (!userResponse.ok) {
+            throw userResponse.error || new Error("Failed to load user");
+          }
+
+          setProfile(profileResponse.data);
           setManagedUser(userResponse.data?.user || null);
           setError("");
           setLoadedRequestKey(requestKey);

@@ -111,13 +111,7 @@ function JobSeekerProfilePage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
-
-    try {
-      await saveDraft();
-    } catch (error) {
-      // The shared profile editor hook already exposes the save failure state.
-      return error;
-    }
+    await saveDraft();
   }
 
   async function handleProfilePictureUpload(event) {
@@ -126,23 +120,12 @@ function JobSeekerProfilePage() {
       return;
     }
 
-    try {
-      await uploadProfileImage(file);
-    } catch (error) {
-      // The shared profile editor hook already exposes the upload failure state.
-      return error;
-    }
-
+    await uploadProfileImage(file);
     event.target.value = "";
   }
 
   async function handleRemoveProfilePicture() {
-    try {
-      await removeProfileImage();
-    } catch (error) {
-      // The shared profile editor hook already exposes the removal failure state.
-      return error;
-    }
+    await removeProfileImage();
   }
 
   if (loading) {

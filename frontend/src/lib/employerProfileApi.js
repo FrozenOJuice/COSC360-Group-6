@@ -1,75 +1,44 @@
-import { apiFetch } from "./api.js";
-import { createResponseError } from "./responseMessage.js";
+import { mapResultData, requestJson } from "./api.js";
+
+async function requestEmployerProfile(path, options, fallbackMessage) {
+  const result = await requestJson(path, options, { fallbackMessage });
+  return mapResultData(result, (payload) => payload.data ?? null);
+}
 
 export async function getCurrentEmployerProfile() {
-  const response = await apiFetch("/api/employer-profile/me", {
+  return requestEmployerProfile("/api/employer-profile/me", {
     method: "GET",
-  });
-
-  if (!response.ok) {
-    throw await createResponseError(response, "Failed to fetch employer profile");
-  }
-
-  const data = await response.json();
-  return data.data;
+  }, "Failed to fetch employer profile");
 }
 
 export async function getEmployerProfileByUserId(userId) {
-  const response = await apiFetch(`/api/employer-profile/${userId}`, {
+  return requestEmployerProfile(`/api/employer-profile/${userId}`, {
     method: "GET",
-  });
-
-  if (!response.ok) {
-    throw await createResponseError(response, "Failed to fetch employer profile");
-  }
-
-  const data = await response.json();
-  return data.data;
+  }, "Failed to fetch employer profile");
 }
 
 export async function uploadCurrentEmployerLogo(file) {
   const formData = new FormData();
   formData.append("image", file);
 
-  const response = await apiFetch("/api/employer-profile/me/logo", {
+  return requestEmployerProfile("/api/employer-profile/me/logo", {
     method: "POST",
     body: formData,
-  });
-
-  if (!response.ok) {
-    throw await createResponseError(response, "Failed to upload employer logo");
-  }
-
-  const data = await response.json();
-  return data.data;
+  }, "Failed to upload employer logo");
 }
 
 export async function removeCurrentEmployerLogo() {
-  const response = await apiFetch("/api/employer-profile/me/logo", {
+  return requestEmployerProfile("/api/employer-profile/me/logo", {
     method: "DELETE",
-  });
-
-  if (!response.ok) {
-    throw await createResponseError(response, "Failed to remove employer logo");
-  }
-
-  const data = await response.json();
-  return data.data;
+  }, "Failed to remove employer logo");
 }
 
 export async function updateCurrentEmployerProfile(profileData) {
-  const response = await apiFetch("/api/employer-profile/me", {
+  return requestEmployerProfile("/api/employer-profile/me", {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(profileData),
-  });
-
-  if (!response.ok) {
-    throw await createResponseError(response, "Failed to update employer profile");
-  }
-
-  const data = await response.json();
-  return data.data;
+  }, "Failed to update employer profile");
 }

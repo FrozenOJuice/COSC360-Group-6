@@ -1,25 +1,11 @@
 import { z } from "zod";
+import {
+    buildObjectIdSchema,
+    optionalTrimmedString,
+    optionalTrimmedStringAllowEmpty,
+} from "./schemaUtils.js";
 
 const PROFILE_VISIBILITY_VALUES = ["private", "public"];
-const OBJECT_ID_PATTERN = /^[0-9a-fA-F]{24}$/;
-
-const emptyStringToUndefined = (value) => {
-    if (typeof value !== "string") {
-        return value;
-    }
-
-    const trimmed = value.trim();
-    return trimmed === "" ? undefined : trimmed;
-};
-
-const optionalTrimmedString = (schema) =>
-    z.preprocess(emptyStringToUndefined, schema.optional());
-
-const optionalTrimmedStringAllowEmpty = (schema) =>
-    z.preprocess(
-        (value) => (typeof value === "string" ? value.trim() : value),
-        schema.optional()
-    );
 
 const optionalStringArray = (fieldName) =>
     z.preprocess(
@@ -65,9 +51,7 @@ const emailSchema = z.string()
     .transform((value) => value.toLowerCase());
 
 export const profileUserParamsSchema = z.object({
-    userId: z.string()
-        .trim()
-        .regex(OBJECT_ID_PATTERN, "User id must be a valid MongoDB ObjectId"),
+    userId: buildObjectIdSchema("User id"),
 }).strict();
 
 export const updateSeekerProfileSchema = z.object({

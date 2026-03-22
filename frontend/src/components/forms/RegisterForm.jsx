@@ -75,7 +75,6 @@ function RegisterForm() {
         <select name="role" value={formData.role} onChange={handleChange}>
           <option value="seeker">Job Seeker</option>
           <option value="employer">Employer</option>
-          {/* <option value="admin">Admin</option> */}
         </select>
       </label>
 

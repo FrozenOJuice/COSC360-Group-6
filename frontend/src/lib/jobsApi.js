@@ -1,63 +1,25 @@
-import { apiFetch } from "./api";
-
-async function readJson(response) {
-  try {
-    return await response.json();
-  } catch {
-    return {};
-  }
-}
-
-function buildQueryString(query = {}) {
-  const params = new URLSearchParams();
-
-  Object.entries(query).forEach(([key, value]) => {
-    if (value === undefined || value === null || value === "") {
-      return;
-    }
-
-    params.set(key, String(value));
-  });
-
-  const search = params.toString();
-  return search ? `?${search}` : "";
-}
+import { buildQueryString, requestJson } from "./api";
 
 export async function fetchJobs(query = {}) {
-  const response = await apiFetch(`/api/jobs${buildQueryString(query)}`, {
+  return requestJson(`/api/jobs${buildQueryString(query)}`, {
     method: "GET",
+  }, {
+    fallbackMessage: "Could not load jobs.",
   });
-  const data = await readJson(response);
-
-  return {
-    ok: response.ok,
-    status: response.status,
-    data,
-  };
 }
 
 export async function fetchJobById(jobId) {
-  const response = await apiFetch(`/api/jobs/${jobId}`, {
+  return requestJson(`/api/jobs/${jobId}`, {
     method: "GET",
+  }, {
+    fallbackMessage: "Could not load this job.",
   });
-  const data = await readJson(response);
-
-  return {
-    ok: response.ok,
-    status: response.status,
-    data,
-  };
 }
 
 export async function fetchJobOptions() {
-  const response = await apiFetch("/api/jobs/options", {
+  return requestJson("/api/jobs/options", {
     method: "GET",
+  }, {
+    fallbackMessage: "Could not load job filter options.",
   });
-  const data = await readJson(response);
-
-  return {
-    ok: response.ok,
-    status: response.status,
-    data,
-  };
 }

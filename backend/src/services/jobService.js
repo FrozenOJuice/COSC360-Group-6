@@ -4,18 +4,10 @@ import {
     listDistinctJobFieldValues,
     listJobs,
 } from "../repositories/jobRepository.js";
+import { escapeRegex, toPositiveInt } from "./queryUtils.js";
 import { appError } from "../utils/appError.js";
 
 const SORT_FIELDS = new Set(["title", "category", "country", "salary", "currency", "exchangeRate"]);
-
-function escapeRegex(value) {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function toPositiveInt(value, fallback) {
-    const parsed = Number.parseInt(value, 10);
-    return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
-}
 
 function normalizeJob(job) {
     return {
