@@ -1,23 +1,17 @@
 import AdminUsersPanel from "../components/admin/AdminUsersPanel";
 import "../styles/AdminPage.css";
 
-const platformStats = [
-  { label: "Active employers", value: "126" },
-  { label: "Open job posts", value: "482" },
-  { label: "New users today", value: "37" },
-  { label: "Reported listings", value: "11" },
-];
-
 function AdminPage() {
   return (
     <main className="landing-page">
       <section className="admin-hero" id="admin">
         <div className="admin-hero-copy">
           <p className="hero-eyebrow">Admin Dashboard</p>
-          <h1>Oversee platform health, access, and moderation.</h1>
+          <h1>Manage account access from one place.</h1>
           <p className="hero-copy">
-            Track operational load, review flagged content, and keep employer and
-            job seeker activity moving through the system cleanly.
+            This dashboard currently exposes real user-management tools only.
+            Platform analytics and moderation metrics are intentionally omitted
+            until they are backed by actual data.
           </p>
 
           <div className="hero-actions">
@@ -25,38 +19,38 @@ function AdminPage() {
               Manage Users
             </a>
             <a className="hero-button hero-button-secondary" href="#admin-overview">
-              Platform Overview
+              Current Scope
             </a>
           </div>
         </div>
 
         <aside className="admin-priority-panel" id="admin-priority">
-          <p className="admin-panel-label">Priority</p>
-          <h2>Today&apos;s operational focus</h2>
+          <p className="admin-panel-label">Available Now</p>
+          <h2>Current admin scope</h2>
           <p>
-            Clear approvals, resolve reported content quickly, and keep the
-            posting pipeline healthy for both sides of the marketplace.
+            Use the user table below to search accounts, review roles, and
+            enable or disable access where permitted.
           </p>
-          <div className="admin-priority-list">
-            <div>
-              <strong>12m</strong>
-              <span>median review time</span>
-            </div>
-            <div>
-              <strong>94%</strong>
-              <span>queue cleared today</span>
-            </div>
-          </div>
+          <p>
+            This page no longer shows placeholder health metrics, moderation
+            queues, or performance summaries.
+          </p>
         </aside>
       </section>
 
       <section className="admin-overview-grid" id="admin-overview">
-        {platformStats.map((stat) => (
-          <article key={stat.label} className="admin-stat-card">
-            <p>{stat.label}</p>
-            <strong>{stat.value}</strong>
-          </article>
-        ))}
+        <article className="admin-stat-card">
+          <strong>User access</strong>
+          <p>Search accounts and change access for non-admin users.</p>
+        </article>
+        <article className="admin-stat-card">
+          <strong>Profile review</strong>
+          <p>Open seeker and employer profiles from the user table.</p>
+        </article>
+        <article className="admin-stat-card">
+          <strong>No fake metrics</strong>
+          <p>Operational counts stay hidden until real reporting exists.</p>
+        </article>
       </section>
 
       <AdminUsersPanel />

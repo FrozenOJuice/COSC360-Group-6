@@ -56,8 +56,9 @@ function JobSeekerPage() {
           <p className="hero-eyebrow">Job Seeker Dashboard</p>
           <h1>Keep your search moving with fresh opportunities.</h1>
           <p className="hero-copy">
-            Browse new roles, jump back into your search, and keep your account
-            ready for the next application.
+            Browse live roles from the public board and keep your profile up to
+            date. Saved-job and application totals are intentionally omitted
+            until those features are backed by real data.
           </p>
 
           <div className="hero-actions">
@@ -69,19 +70,19 @@ function JobSeekerPage() {
 
         <aside className="job-seeker-profile-preview" id="job-seeker-profile">
           <p className="job-seeker-profile-label">Profile</p>
-          <h2>Welcome back</h2>
+          <h2>Current seeker tools</h2>
           <p>
-            Your profile is ready to support quick applications and saved job
-            searches.
+            This dashboard keeps the live job board and your profile within
+            reach without inventing fake activity counts.
           </p>
           <div className="job-seeker-profile-stats">
             <div>
-              <strong>12</strong>
-              <span>saved jobs</span>
+              <strong>Profile</strong>
+              <span>Update your seeker profile and visibility settings.</span>
             </div>
             <div>
-              <strong>4</strong>
-              <span>applications</span>
+              <strong>Live jobs</strong>
+              <span>The listings below come directly from the real job board.</span>
             </div>
           </div>
         </aside>
@@ -89,8 +90,8 @@ function JobSeekerPage() {
 
       <section className="preview-section" id="job-seeker-jobs">
         <div className="section-heading">
-          <p className="section-label">Recommended Jobs</p>
-          <h2>Browse live roles from the job board</h2>
+          <p className="section-label">Live Jobs</p>
+          <h2>Browse current roles from the job board</h2>
         </div>
 
         {loading ? <p className="page-status">Loading jobs...</p> : null}
