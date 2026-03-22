@@ -1,24 +1,27 @@
 .employer-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(280px, 380px);
-  gap: 24px;
+  gap: 28px;
   align-items: start;
-  padding: 72px 0 56px;
+  padding: 78px 0 60px;
 }
 
 .employer-hero-copy h1 {
   max-width: 720px;
   margin: 0;
   font-size: clamp(2.6rem, 6vw, 4.4rem);
-  line-height: 0.95;
+  line-height: 1.03;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
 }
 
 .employer-summary-panel {
-  padding: 24px;
+  padding: 28px;
   border: 1px solid #d6dfeb;
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 16px 36px rgba(24, 33, 47, 0.08);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(246, 250, 255, 0.74));
+  box-shadow: 0 18px 38px rgba(24, 33, 47, 0.08);
 }
 
 .employer-summary-panel h2,
@@ -38,7 +41,7 @@
 
 .employer-summary-panel p {
   margin-top: 12px;
-  line-height: 1.7;
+  line-height: 1.8;
   color: #4e5d74;
 }
 
@@ -54,12 +57,13 @@
   flex-direction: column;
   gap: 4px;
   padding: 14px;
-  border-radius: 16px;
-  background: #eef3ff;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid #dde6f3;
 }
 
 .employer-summary-stats strong {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   color: #18212f;
 }
 
