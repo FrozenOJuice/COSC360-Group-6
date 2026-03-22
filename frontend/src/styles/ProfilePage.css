@@ -11,7 +11,7 @@
   gap: 24px;
 }
 
-.left-box {
+.profile-main-card {
   padding: 32px;
   border: 1px solid #d6dfeb;
   border-radius: 24px;
@@ -19,7 +19,7 @@
   box-shadow: 0 18px 36px rgba(24, 33, 47, 0.08);
 }
 
-.right-box {
+.profile-side-card {
   padding: 30px;
   display: flex;
   flex-direction: column;
@@ -31,7 +31,7 @@
   box-shadow: 0 18px 36px rgba(24, 33, 47, 0.08);
 }
 
-.left-box h1 {
+.profile-main-card h1 {
   font-size: clamp(2.3rem, 5vw, 3rem);
   margin: 0 0 22px;
   line-height: 1.06;
@@ -40,43 +40,40 @@
   color: #333;
 }
 
-.left-box h2 {
+.profile-main-card h2,
+.profile-side-card h2 {
   font-size: 1.35rem;
   margin-top: 0;
   margin-bottom: 10px;
   color: #555;
 }
 
-.bio,
-.job-experience,
-.education,
-.current-position,
-.resume {
+.profile-section {
   padding: 18px 0;
   border-top: 1px solid #e5ebf4;
 }
 
-.bio {
+.profile-section:first-of-type {
   padding-top: 0;
   border-top: 0;
 }
 
-.left-box p,
-.left-box ul {
+.profile-main-card p,
+.profile-main-card ul {
   margin-bottom: 0;
   line-height: 1.75;
   color: #4e5d74;
 }
 
-.left-box ul {
+.profile-main-card ul {
   padding-left: 20px;
 }
 
-.left-box li {
+.profile-main-card li {
   margin-bottom: 6px;
 }
 
-.resume a {
+.profile-link {
   display: inline-block;
   padding: 12px 18px;
   background-color: #18212f;
@@ -87,12 +84,12 @@
   transition: transform 0.16s ease, box-shadow 0.16s ease;
 }
 
-.resume a:hover {
+.profile-link:hover {
   transform: translateY(-1px);
   box-shadow: 0 12px 24px rgba(24, 33, 47, 0.12);
 }
 
-.profile-picture {
+.profile-image {
   width: 158px;
   height: 158px;
   border-radius: 50%;
@@ -101,18 +98,12 @@
   border: 4px solid #edf3fb;
 }
 
-.personal-info {
+.profile-side-details {
   width: 100%;
   text-align: left;
 }
 
-.personal-info h2 {
-  font-size: 1.5rem;
-  margin: 0 0 16px;
-  color: #555;
-}
-
-.personal-info p {
+.profile-side-details p {
   margin-bottom: 10px;
   padding: 12px 14px;
   font-size: 1.02rem;
@@ -120,7 +111,7 @@
   background: rgba(255, 255, 255, 0.76);
 }
 
-.personal-info strong {
+.profile-side-details strong {
   color: #333;
 }
 

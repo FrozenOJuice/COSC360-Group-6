@@ -3,6 +3,7 @@ import { useAuth } from "./auth/useAuth";
 import AdminPage from "./pages/AdminPage";
 import Navbar from "./components/Navbar";
 import EmployerPage from "./pages/EmployerPage";
+import EmployerProfilePage from "./pages/EmployerProfilePage";
 import HomePage from "./pages/HomePage";
 import JobSeekerPage from "./pages/JobSeekerPage";
 import JobSeekerProfilePage from "./pages/JobSeekerProfilePage";
@@ -79,6 +80,7 @@ function App() {
       ) : null}
       {currentPage === "admin" && shouldShowProtectedPage ? <AdminPage /> : null}
       {currentPage === "employer" && shouldShowProtectedPage ? <EmployerPage /> : null}
+      {currentPage === "employerProfile" && shouldShowProtectedPage ? <EmployerProfilePage /> : null}
       {currentPage === "jobs" ? <JobsPage /> : null}
       {currentPage === "jobDetails" ? <JobDetailsPage jobId={currentJobId} /> : null}
       {currentPage === "jobSeeker" && shouldShowProtectedPage ? <JobSeekerPage /> : null}

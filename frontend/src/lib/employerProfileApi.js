@@ -1,20 +1,20 @@
 import { apiFetch } from "./api.js";
 
-export async function getUserProfile() {
-  const response = await apiFetch("/api/seeker-profile/me", {
+export async function getCurrentEmployerProfile() {
+  const response = await apiFetch("/api/employer-profile/me", {
     method: "GET",
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch profile");
+    throw new Error("Failed to fetch employer profile");
   }
 
   const data = await response.json();
   return data.data;
 }
 
-export async function updateUserProfile(profileData) {
-  const response = await apiFetch("/api/seeker-profile/me", {
+export async function updateCurrentEmployerProfile(profileData) {
+  const response = await apiFetch("/api/employer-profile/me", {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -23,7 +23,7 @@ export async function updateUserProfile(profileData) {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to update profile");
+    throw new Error("Failed to update employer profile");
   }
 
   const data = await response.json();

@@ -41,6 +41,9 @@ function EmployerPage() {
             <a className="hero-button hero-button-primary" href="#jobs">
               Browse All Jobs
             </a>
+            <a className="hero-button hero-button-secondary" href="#employer-profile">
+              View Company Profile
+            </a>
           </div>
         </div>
 

@@ -20,7 +20,7 @@ const NAV_BY_VARIANT = {
     ],
     employer: [
         { href: "#jobs", label: "Browse Jobs", muted: false },
-        { href: "#employer-company", label: "Company", muted: true },
+        { href: "#employer-profile", label: "Company", muted: true },
         { label: "Logout", muted: true, action: "logout" },
     ],
 };

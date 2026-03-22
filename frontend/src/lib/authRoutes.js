@@ -5,6 +5,7 @@ export function getCurrentPage(hash) {
   if (JOB_DETAILS_HASH_PATTERN.test(hash)) return "jobDetails";
   if (hash.startsWith("#jobs")) return "jobs";
   if (hash.startsWith("#admin")) return "admin";
+  if (hash.startsWith("#employer-profile")) return "employerProfile";
   if (hash.startsWith("#employer")) return "employer";
   if (hash.startsWith("#job-seeker-profile")) return "jobSeekerProfile";
   if (hash.startsWith("#job-seeker")) return "jobSeeker";
