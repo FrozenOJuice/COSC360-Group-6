@@ -14,12 +14,12 @@ const NAV_BY_VARIANT = {
         { label: "Logout", muted: true, action: "logout" },
     ],
     jobSeeker: [
-        { href: "#job-seeker-jobs", label: "Browse Jobs", muted: false },
+        { href: "#jobs", label: "Browse Jobs", muted: false },
         { href: "#job-seeker-profile", label: "Profile", muted: true },
         { label: "Logout", muted: true, action: "logout" },
     ],
     employer: [
-        { href: "#employer-jobs", label: "Browse Jobs", muted: false },
+        { href: "#jobs", label: "Browse Jobs", muted: false },
         { href: "#employer-company", label: "Company", muted: true },
         { label: "Logout", muted: true, action: "logout" },
     ],

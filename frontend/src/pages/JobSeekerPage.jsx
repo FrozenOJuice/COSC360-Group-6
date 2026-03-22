@@ -61,7 +61,7 @@ function JobSeekerPage() {
           </p>
 
           <div className="hero-actions">
-            <a className="hero-button hero-button-primary" href="#job-seeker-jobs">
+            <a className="hero-button hero-button-primary" href="#jobs">
               Browse All Jobs
             </a>
           </div>
