@@ -48,3 +48,16 @@ export async function fetchJobById(jobId) {
     data,
   };
 }
+
+export async function fetchJobOptions() {
+  const response = await apiFetch("/api/jobs/options", {
+    method: "GET",
+  });
+  const data = await readJson(response);
+
+  return {
+    ok: response.ok,
+    status: response.status,
+    data,
+  };
+}

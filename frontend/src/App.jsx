@@ -6,6 +6,7 @@ import EmployerPage from "./pages/EmployerPage";
 import HomePage from "./pages/HomePage";
 import JobSeekerPage from "./pages/JobSeekerPage";
 import JobSeekerProfilePage from "./pages/JobSeekerProfilePage";
+import JobsPage from "./pages/JobsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import {
@@ -75,6 +76,7 @@ function App() {
       ) : null}
       {currentPage === "admin" && shouldShowProtectedPage ? <AdminPage /> : null}
       {currentPage === "employer" && shouldShowProtectedPage ? <EmployerPage /> : null}
+      {currentPage === "jobs" ? <JobsPage /> : null}
       {currentPage === "jobSeeker" && shouldShowProtectedPage ? <JobSeekerPage /> : null}
       {currentPage === "jobSeekerProfile" && shouldShowProtectedPage ? <JobSeekerProfilePage /> : null}
       {currentPage === "login" ? <LoginPage /> : null}

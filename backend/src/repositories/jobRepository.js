@@ -26,6 +26,14 @@ export async function countJobs(filters = {}) {
     return Job.countDocuments(filters).exec();
 }
 
+export async function listDistinctJobFieldValues(fieldName) {
+    return Job.distinct(fieldName, {
+        [fieldName]: {
+            $nin: [null, ""],
+        },
+    }).exec();
+}
+
 export async function createJob(jobData) {
     return Job.create(jobData);
 }

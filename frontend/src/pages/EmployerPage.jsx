@@ -38,7 +38,7 @@ function EmployerPage() {
           </p>
 
           <div className="hero-actions">
-            <a className="hero-button hero-button-primary" href="#employer-jobs">
+            <a className="hero-button hero-button-primary" href="#jobs">
               Browse All Jobs
             </a>
           </div>

@@ -1,31 +1,54 @@
+import { useEffect, useState } from "react";
 import JobCard from "../components/JobCard";
+import { fetchJobs } from "../lib/jobsApi";
 import "../styles/JobSeekerPage.css";
 
-const previewJobs = [
-  {
-    title: "Product Designer",
-    company: "Beacon Studio",
-    jobType: "Remote",
-    salary: "$74,000 - $90,000",
-    summary: "Work across product and marketing to shape a user-friendly hiring experience.",
-  },
-  {
-    title: "Frontend Engineer",
-    company: "Riverbyte",
-    jobType: "Hybrid",
-    salary: "$82,000 - $101,000",
-    summary: "Build responsive interfaces for application, search, and profile workflows.",
-  },
-  {
-    title: "Customer Success Specialist",
-    company: "Northwind Careers",
-    jobType: "Full-time",
-    salary: "$58,000 - $68,000",
-    summary: "Help employers and job seekers navigate the platform and hiring process.",
-  },
-];
-
 function JobSeekerPage() {
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadJobs() {
+      try {
+        const response = await fetchJobs({
+          limit: 6,
+          sortBy: "title",
+          sortOrder: "asc",
+        });
+
+        if (!isActive) {
+          return;
+        }
+
+        if (!response.ok) {
+          setError(response.data.message || "Could not load jobs.");
+          setLoading(false);
+          return;
+        }
+
+        setJobs(Array.isArray(response.data.jobs) ? response.data.jobs : []);
+        setError("");
+        setLoading(false);
+      } catch {
+        if (!isActive) {
+          return;
+        }
+
+        setError("Could not connect to the server.");
+        setLoading(false);
+      }
+    }
+
+    void loadJobs();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
   return (
     <main className="landing-page">
       <section className="job-seeker-hero" id="job-seeker">
@@ -38,7 +61,7 @@ function JobSeekerPage() {
           </p>
 
           <div className="hero-actions">
-            <a className="hero-button hero-button-primary" href="#job-seeker-jobs">
+            <a className="hero-button hero-button-primary" href="#jobs">
               Browse All Jobs
             </a>
           </div>
@@ -67,14 +90,29 @@ function JobSeekerPage() {
       <section className="preview-section" id="job-seeker-jobs">
         <div className="section-heading">
           <p className="section-label">Recommended Jobs</p>
-          <h2>Preview roles worth a closer look</h2>
+          <h2>Browse live roles from the job board</h2>
         </div>
 
-        <div className="job-grid">
-          {previewJobs.map((job) => (
-            <JobCard key={`${job.company}-${job.title}`} {...job} />
-          ))}
-        </div>
+        {loading ? <p className="page-status">Loading jobs...</p> : null}
+        {error ? <p className="page-status">{error}</p> : null}
+        {!loading && !error ? (
+          jobs.length > 0 ? (
+            <div className="job-grid">
+              {jobs.map((job) => (
+                <JobCard
+                  key={job.id}
+                  title={job.title}
+                  category={job.category}
+                  country={job.country}
+                  salary={job.salary}
+                  currency={job.currency}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="page-status">No jobs available right now.</p>
+          )
+        ) : null}
       </section>
     </main>
   );

@@ -1,4 +1,9 @@
-import { countJobs, findJobById, listJobs } from "../repositories/jobRepository.js";
+import {
+    countJobs,
+    findJobById,
+    listDistinctJobFieldValues,
+    listJobs,
+} from "../repositories/jobRepository.js";
 import { appError } from "../utils/appError.js";
 
 const SORT_FIELDS = new Set(["title", "category", "country", "salary", "currency", "exchangeRate"]);
@@ -110,5 +115,30 @@ export async function getBoardJob(jobId) {
 
     return {
         job: normalizeJob(job),
+    };
+}
+
+function compareOptionValues(left, right) {
+    return left.localeCompare(right, undefined, { sensitivity: "base" });
+}
+
+function normalizeOptionValues(values, transform = (value) => value) {
+    return values
+        .filter((value) => typeof value === "string" && value.trim() !== "")
+        .map((value) => transform(value.trim()))
+        .sort(compareOptionValues);
+}
+
+export async function getBoardJobOptions() {
+    const [categories, countries, currencies] = await Promise.all([
+        listDistinctJobFieldValues("category"),
+        listDistinctJobFieldValues("country"),
+        listDistinctJobFieldValues("currency"),
+    ]);
+
+    return {
+        categories: normalizeOptionValues(categories),
+        countries: normalizeOptionValues(countries),
+        currencies: normalizeOptionValues(currencies, (value) => value.toUpperCase()),
     };
 }
