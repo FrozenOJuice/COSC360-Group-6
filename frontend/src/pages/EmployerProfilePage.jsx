@@ -5,8 +5,15 @@ import {
   uploadCurrentEmployerLogo,
   updateCurrentEmployerProfile,
 } from "../lib/employerProfileApi";
+import ProfileEditorFrame from "../profile/ProfileEditorFrame";
+import {
+  ProfileLinkSection,
+  ProfileTextAreaSection,
+  ProfileTextInputSection,
+} from "../profile/ProfileFieldSections";
+import ProfileMediaPanel from "../profile/ProfileMediaPanel";
+import ProfileVisibilityCard from "../profile/ProfileVisibilityCard";
 import { useProfileEditor } from "../profile/useProfileEditor";
-import { resolveProfileAssetUrl } from "../lib/profileAssetUrl";
 import "../styles/ProfilePage.css";
 
 function createEmployerDraft(profile, user) {
@@ -106,178 +113,44 @@ function EmployerProfilePage() {
     contactPhone: profile?.contactPhone || "No contact phone number.",
   };
   const visibilityValue = isEditing ? draft.visibility : profile?.visibility;
-  const visibilityLabel = visibilityValue === "public" ? "Public" : "Private";
-  const visibilityDescription = visibilityValue === "public"
-    ? "Anyone can view your employer profile."
-    : "Only you and admins can view your employer profile.";
   const hasCustomLogo = profile?.logo && profile.logo !== "/default-profile.png";
 
   return (
-    <div className="profile-container">
-      <form className="profile-flex" onSubmit={handleSubmit} noValidate>
-        <div className="profile-main-card">
-          <div className="profile-header">
-            <h1>Employer Profile</h1>
-            <div className="profile-actions">
-              {isEditing ? (
-                <>
-                  <button
-                    type="button"
-                    className="profile-button profile-button-secondary"
-                    onClick={cancelEditing}
-                    disabled={isSaving}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="profile-button"
-                    disabled={isSaving}
-                  >
-                    {isSaving ? "Saving..." : "Save Changes"}
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  className="profile-button"
-                  onClick={startEditing}
-                >
-                  Edit Profile
-                </button>
-              )}
-            </div>
-          </div>
-          {saveError ? <p className="profile-status profile-status-error">{saveError}</p> : null}
-          {saveSuccess ? <p className="profile-status profile-status-success">{saveSuccess}</p> : null}
-          <div className="profile-section">
-            <h2>Company Name</h2>
-            {isEditing ? (
-              <input
-                className={getControlClass("profile-input", "companyName")}
-                type="text"
-                name="companyName"
-                value={draft.companyName}
-                onChange={handleDraftChange}
-              />
-            ) : (
-              <p>{profileData.companyName}</p>
-            )}
-            {isEditing && fieldErrors.companyName ? <p className="profile-field-error">{fieldErrors.companyName}</p> : null}
-          </div>
-          <div className="profile-section">
-            <h2>Company Description</h2>
-            {isEditing ? (
-              <textarea
-                className={getControlClass("profile-textarea", "companyDescription")}
-                name="companyDescription"
-                value={draft.companyDescription}
-                onChange={handleDraftChange}
-                rows={6}
-              />
-            ) : (
-              <p>{profileData.companyDescription}</p>
-            )}
-            {isEditing && fieldErrors.companyDescription ? <p className="profile-field-error">{fieldErrors.companyDescription}</p> : null}
-          </div>
-          <div className="profile-section">
-            <h2>Location</h2>
-            {isEditing ? (
-              <input
-                className={getControlClass("profile-input", "location")}
-                type="text"
-                name="location"
-                value={draft.location}
-                onChange={handleDraftChange}
-              />
-            ) : (
-              <p>{profileData.location}</p>
-            )}
-            {isEditing && fieldErrors.location ? <p className="profile-field-error">{fieldErrors.location}</p> : null}
-          </div>
-          <div className="profile-section">
-            <h2>Website</h2>
-            {isEditing ? (
-              <input
-                className={getControlClass("profile-input", "website")}
-                type="text"
-                name="website"
-                value={draft.website}
-                onChange={handleDraftChange}
-              />
-            ) : profileData.website ? (
-              <a className="profile-link" href={profileData.website} target="_blank" rel="noreferrer">
-                Visit Website
-              </a>
-            ) : (
-              <p>No website available.</p>
-            )}
-            {isEditing && fieldErrors.website ? <p className="profile-field-error">{fieldErrors.website}</p> : null}
-          </div>
-        </div>
+    <ProfileEditorFrame
+      title="Employer Profile"
+      isEditing={isEditing}
+      isSaving={isSaving}
+      onEdit={startEditing}
+      onCancel={cancelEditing}
+      onSubmit={handleSubmit}
+      saveError={saveError}
+      saveSuccess={saveSuccess}
+      sideContent={(
         <div className="profile-side-card">
-          <img
-            src={resolveProfileAssetUrl(
-              isEditing ? draft.logo : profileData.logo
-            )}
-            alt="Company logo"
-            className="profile-image"
+          <ProfileMediaPanel
+            imageSrc={isEditing ? draft.logo : profileData.logo}
+            imageAlt="Company logo"
+            isEditing={isEditing}
+            inputLabel="Company Logo"
+            inputClassName={getControlClass("profile-file-input", "logo")}
+            accept="image/jpeg,image/png,image/gif,image/webp"
+            onFileChange={handleLogoUpload}
+            isUploading={isUploadingImage}
+            isRemoving={isRemovingImage}
+            hasCustomImage={hasCustomLogo}
+            onRemove={handleRemoveLogo}
+            removeLabel="Remove Logo"
+            fieldError={fieldErrors.logo}
           />
-          {isEditing ? (
-            <div className="profile-media-stack">
-              <label className="profile-field">
-                <span>Company Logo</span>
-                <input
-                  className={getControlClass("profile-file-input", "logo")}
-                  type="file"
-                  accept="image/jpeg,image/png,image/gif,image/webp"
-                  onChange={handleLogoUpload}
-                  disabled={isUploadingImage || isRemovingImage}
-                />
-              </label>
-              <div className="profile-media-actions">
-                <p className="profile-helper-copy profile-media-helper">
-                  JPG, PNG, GIF, or WebP only, up to 5 MB.
-                </p>
-                {hasCustomLogo ? (
-                  <button
-                    type="button"
-                    className="profile-inline-button profile-inline-button-muted"
-                    onClick={handleRemoveLogo}
-                    disabled={isUploadingImage || isRemovingImage}
-                  >
-                    {isRemovingImage ? "Removing..." : "Remove Logo"}
-                  </button>
-                ) : null}
-              </div>
-              {isUploadingImage ? <p className="profile-helper-copy profile-media-helper">Uploading image...</p> : null}
-              {fieldErrors.logo ? <p className="profile-field-error">{fieldErrors.logo}</p> : null}
-            </div>
-          ) : null}
-          <div className="profile-visibility-card">
-            <div className="profile-visibility-header">
-              <p className="profile-visibility-label">Visibility</p>
-              <span className={`profile-visibility-badge profile-visibility-badge-${visibilityValue}`}>
-                {visibilityLabel}
-              </span>
-            </div>
-            <p className="profile-visibility-copy">{visibilityDescription}</p>
-            {isEditing ? (
-              <label className="profile-field profile-visibility-field">
-                <span>Who can view this profile</span>
-                <select
-                  className={getControlClass("profile-select", "visibility")}
-                  name="visibility"
-                  value={draft.visibility}
-                  onChange={handleDraftChange}
-                >
-                  <option value="private">Private</option>
-                  <option value="public">Public</option>
-                </select>
-              </label>
-            ) : null}
-            {isEditing && fieldErrors.visibility ? <p className="profile-field-error">{fieldErrors.visibility}</p> : null}
-          </div>
+          <ProfileVisibilityCard
+            value={visibilityValue}
+            isEditing={isEditing}
+            selectClassName={getControlClass("profile-select", "visibility")}
+            onChange={handleDraftChange}
+            error={fieldErrors.visibility}
+            publicDescription="Anyone can view your employer profile."
+            privateDescription="Only you and admins can view your employer profile."
+          />
           <div className="profile-side-details">
             <h2>Contact Information</h2>
             <p><strong>Account Name:</strong> {user?.name || "N/A"}</p>
@@ -315,8 +188,52 @@ function EmployerProfilePage() {
             )}
           </div>
         </div>
-      </form>
-    </div>
+      )}
+    >
+      <ProfileTextInputSection
+        title="Company Name"
+        isEditing={isEditing}
+        inputClassName={getControlClass("profile-input", "companyName")}
+        name="companyName"
+        value={draft.companyName}
+        onChange={handleDraftChange}
+        displayValue={profileData.companyName}
+        error={fieldErrors.companyName}
+      />
+      <ProfileTextAreaSection
+        title="Company Description"
+        isEditing={isEditing}
+        inputClassName={getControlClass("profile-textarea", "companyDescription")}
+        name="companyDescription"
+        value={draft.companyDescription}
+        onChange={handleDraftChange}
+        displayValue={profileData.companyDescription}
+        error={fieldErrors.companyDescription}
+        rows={6}
+      />
+      <ProfileTextInputSection
+        title="Location"
+        isEditing={isEditing}
+        inputClassName={getControlClass("profile-input", "location")}
+        name="location"
+        value={draft.location}
+        onChange={handleDraftChange}
+        displayValue={profileData.location}
+        error={fieldErrors.location}
+      />
+      <ProfileLinkSection
+        title="Website"
+        isEditing={isEditing}
+        inputClassName={getControlClass("profile-input", "website")}
+        name="website"
+        value={draft.website}
+        onChange={handleDraftChange}
+        href={profileData.website}
+        linkLabel="Visit Website"
+        emptyText="No website available."
+        error={fieldErrors.website}
+      />
+    </ProfileEditorFrame>
   );
 }
 

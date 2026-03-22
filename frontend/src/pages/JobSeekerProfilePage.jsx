@@ -5,8 +5,16 @@ import {
   uploadCurrentSeekerProfilePicture,
   updateCurrentSeekerProfile,
 } from "../lib/seekerProfileApi";
+import ProfileEditorFrame from "../profile/ProfileEditorFrame";
+import {
+  ProfileArraySection,
+  ProfileLinkSection,
+  ProfileTextAreaSection,
+  ProfileTextInputSection,
+} from "../profile/ProfileFieldSections";
+import ProfileMediaPanel from "../profile/ProfileMediaPanel";
+import ProfileVisibilityCard from "../profile/ProfileVisibilityCard";
 import { useProfileEditor } from "../profile/useProfileEditor";
-import { resolveProfileAssetUrl } from "../lib/profileAssetUrl";
 import "../styles/ProfilePage.css";
 
 function createEditableList(values) {
@@ -146,245 +154,44 @@ function JobSeekerProfilePage() {
     resumeLink: profile?.resumeLink || "",
   };
   const visibilityValue = isEditing ? draft.visibility : profile?.visibility;
-  const visibilityLabel = visibilityValue === "public" ? "Public" : "Private";
-  const visibilityDescription = visibilityValue === "public"
-    ? "Anyone can view your seeker profile."
-    : "Only you and admins can view your seeker profile.";
   const hasCustomProfilePicture = profile?.profilePicture && profile.profilePicture !== "/default-profile.png";
 
   return (
-    <div className="profile-container">
-      <form className="profile-flex" onSubmit={handleSubmit} noValidate>
-        <div className="profile-main-card">
-          <div className="profile-header">
-            <h1>Seeker Profile</h1>
-            <div className="profile-actions">
-              {isEditing ? (
-                <>
-                  <button
-                    type="button"
-                    className="profile-button profile-button-secondary"
-                    onClick={cancelEditing}
-                    disabled={isSaving}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="profile-button"
-                    disabled={isSaving}
-                  >
-                    {isSaving ? "Saving..." : "Save Changes"}
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  className="profile-button"
-                  onClick={startEditing}
-                >
-                  Edit Profile
-                </button>
-              )}
-            </div>
-          </div>
-          {saveError ? <p className="profile-status profile-status-error">{saveError}</p> : null}
-          {saveSuccess ? <p className="profile-status profile-status-success">{saveSuccess}</p> : null}
-          <div className="profile-section">
-            <h2>Bio</h2>
-            {isEditing ? (
-              <textarea
-                className={getControlClass("profile-textarea", "bio")}
-                name="bio"
-                value={draft.bio}
-                onChange={handleDraftChange}
-                rows={5}
-              />
-            ) : (
-              <p>{profileData.bio}</p>
-            )}
-            {isEditing && fieldErrors.bio ? <p className="profile-field-error">{fieldErrors.bio}</p> : null}
-          </div>
-          <div className="profile-section">
-            <h2>Job Experience</h2>
-            {isEditing ? (
-              <div className="profile-array-editor">
-                <p className="profile-helper-copy">Add each role or experience entry separately.</p>
-                {draft.jobExperience.map((job, index) => (
-                  <div key={`job-experience-${index}`} className="profile-array-row">
-                    <input
-                      className={getControlClass("profile-input", "jobExperience")}
-                      type="text"
-                      value={job}
-                      onChange={(event) => handleListItemChange("jobExperience", index, event.target.value)}
-                      placeholder="Example: Marketing Intern at Acme"
-                    />
-                    <button
-                      type="button"
-                      className="profile-inline-button profile-inline-button-muted"
-                      onClick={() => handleRemoveListItem("jobExperience", index)}
-                      disabled={draft.jobExperience.length === 1 && !draft.jobExperience[0].trim()}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="profile-inline-button"
-                  onClick={() => handleAddListItem("jobExperience")}
-                >
-                  Add Experience
-                </button>
-                {fieldErrors.jobExperience ? <p className="profile-field-error">{fieldErrors.jobExperience}</p> : null}
-              </div>
-            ) : (
-              <ul>
-                {profileData.jobExperience.map((job, index) => (
-                  <li key={index}>{job}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <div className="profile-section">
-            <h2>Education</h2>
-            {isEditing ? (
-              <div className="profile-array-editor">
-                <p className="profile-helper-copy">Add each school, degree, or program separately.</p>
-                {draft.education.map((edu, index) => (
-                  <div key={`education-${index}`} className="profile-array-row">
-                    <input
-                      className={getControlClass("profile-input", "education")}
-                      type="text"
-                      value={edu}
-                      onChange={(event) => handleListItemChange("education", index, event.target.value)}
-                      placeholder="Example: BSc Computer Science, UBC Okanagan"
-                    />
-                    <button
-                      type="button"
-                      className="profile-inline-button profile-inline-button-muted"
-                      onClick={() => handleRemoveListItem("education", index)}
-                      disabled={draft.education.length === 1 && !draft.education[0].trim()}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="profile-inline-button"
-                  onClick={() => handleAddListItem("education")}
-                >
-                  Add Education
-                </button>
-                {fieldErrors.education ? <p className="profile-field-error">{fieldErrors.education}</p> : null}
-              </div>
-            ) : (
-              <ul>
-                {profileData.education.map((edu, index) => (
-                  <li key={index}>{edu}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <div className="profile-section">
-            <h2>Current Job Position</h2>
-            {isEditing ? (
-              <input
-                className={getControlClass("profile-input", "currentPosition")}
-                type="text"
-                name="currentPosition"
-                value={draft.currentPosition}
-                onChange={handleDraftChange}
-              />
-            ) : (
-              <p>{profileData.currentPosition}</p>
-            )}
-            {isEditing && fieldErrors.currentPosition ? <p className="profile-field-error">{fieldErrors.currentPosition}</p> : null}
-          </div>
-          <div className="profile-section">
-            <h2>Resume</h2>
-            {isEditing ? (
-              <input
-                className={getControlClass("profile-input", "resumeLink")}
-                type="text"
-                name="resumeLink"
-                value={draft.resumeLink}
-                onChange={handleDraftChange}
-              />
-            ) : profileData.resumeLink ? (
-              <a className="profile-link" href={profileData.resumeLink} target="_blank" rel="noreferrer">
-                Open Resume
-              </a>
-            ) : (
-              <p>No resume link available.</p>
-            )}
-            {isEditing && fieldErrors.resumeLink ? <p className="profile-field-error">{fieldErrors.resumeLink}</p> : null}
-          </div>
-        </div>
+    <ProfileEditorFrame
+      title="Seeker Profile"
+      isEditing={isEditing}
+      isSaving={isSaving}
+      onEdit={startEditing}
+      onCancel={cancelEditing}
+      onSubmit={handleSubmit}
+      saveError={saveError}
+      saveSuccess={saveSuccess}
+      sideContent={(
         <div className="profile-side-card">
-          <img
-            src={resolveProfileAssetUrl(
-              isEditing ? draft.profilePicture : profileData.profilePicture
-            )}
-            alt="Profile Picture"
-            className="profile-image"
+          <ProfileMediaPanel
+            imageSrc={isEditing ? draft.profilePicture : profileData.profilePicture}
+            imageAlt="Profile Picture"
+            isEditing={isEditing}
+            inputLabel="Profile Picture"
+            inputClassName={getControlClass("profile-file-input", "profilePicture")}
+            accept="image/jpeg,image/png,image/gif,image/webp"
+            onFileChange={handleProfilePictureUpload}
+            isUploading={isUploadingImage}
+            isRemoving={isRemovingImage}
+            hasCustomImage={hasCustomProfilePicture}
+            onRemove={handleRemoveProfilePicture}
+            removeLabel="Remove Picture"
+            fieldError={fieldErrors.profilePicture}
           />
-          {isEditing ? (
-            <div className="profile-media-stack">
-              <label className="profile-field">
-                <span>Profile Picture</span>
-                <input
-                  className={getControlClass("profile-file-input", "profilePicture")}
-                  type="file"
-                  accept="image/jpeg,image/png,image/gif,image/webp"
-                  onChange={handleProfilePictureUpload}
-                  disabled={isUploadingImage || isRemovingImage}
-                />
-              </label>
-              <div className="profile-media-actions">
-                <p className="profile-helper-copy profile-media-helper">
-                  JPG, PNG, GIF, or WebP only, up to 5 MB.
-                </p>
-                {hasCustomProfilePicture ? (
-                  <button
-                    type="button"
-                    className="profile-inline-button profile-inline-button-muted"
-                    onClick={handleRemoveProfilePicture}
-                    disabled={isUploadingImage || isRemovingImage}
-                  >
-                    {isRemovingImage ? "Removing..." : "Remove Picture"}
-                  </button>
-                ) : null}
-              </div>
-              {isUploadingImage ? <p className="profile-helper-copy profile-media-helper">Uploading image...</p> : null}
-              {fieldErrors.profilePicture ? <p className="profile-field-error">{fieldErrors.profilePicture}</p> : null}
-            </div>
-          ) : null}
-          <div className="profile-visibility-card">
-            <div className="profile-visibility-header">
-              <p className="profile-visibility-label">Visibility</p>
-              <span className={`profile-visibility-badge profile-visibility-badge-${visibilityValue}`}>
-                {visibilityLabel}
-              </span>
-            </div>
-            <p className="profile-visibility-copy">{visibilityDescription}</p>
-            {isEditing ? (
-              <label className="profile-field profile-visibility-field">
-                <span>Who can view this profile</span>
-                <select
-                  className={getControlClass("profile-select", "visibility")}
-                  name="visibility"
-                  value={draft.visibility}
-                  onChange={handleDraftChange}
-                >
-                  <option value="private">Private</option>
-                  <option value="public">Public</option>
-                </select>
-              </label>
-            ) : null}
-            {isEditing && fieldErrors.visibility ? <p className="profile-field-error">{fieldErrors.visibility}</p> : null}
-          </div>
+          <ProfileVisibilityCard
+            value={visibilityValue}
+            isEditing={isEditing}
+            selectClassName={getControlClass("profile-select", "visibility")}
+            onChange={handleDraftChange}
+            error={fieldErrors.visibility}
+            publicDescription="Anyone can view your seeker profile."
+            privateDescription="Only you and admins can view your seeker profile."
+          />
           <div className="profile-side-details">
             <h2>Personal Information</h2>
             <p><strong>Full Name:</strong> {user?.name || "N/A"}</p>
@@ -408,8 +215,72 @@ function JobSeekerProfilePage() {
             )}
           </div>
         </div>
-      </form>
-    </div>
+      )}
+    >
+      <ProfileTextAreaSection
+        title="Bio"
+        isEditing={isEditing}
+        inputClassName={getControlClass("profile-textarea", "bio")}
+        name="bio"
+        value={draft.bio}
+        onChange={handleDraftChange}
+        displayValue={profileData.bio}
+        error={fieldErrors.bio}
+        rows={5}
+      />
+      <ProfileArraySection
+        title="Job Experience"
+        fieldName="jobExperience"
+        isEditing={isEditing}
+        items={draft.jobExperience}
+        displayItems={profileData.jobExperience}
+        inputClassName={getControlClass("profile-input", "jobExperience")}
+        placeholder="Example: Marketing Intern at Acme"
+        helperText="Add each role or experience entry separately."
+        addLabel="Add Experience"
+        error={fieldErrors.jobExperience}
+        onItemChange={(index, value) => handleListItemChange("jobExperience", index, value)}
+        onAddItem={() => handleAddListItem("jobExperience")}
+        onRemoveItem={(index) => handleRemoveListItem("jobExperience", index)}
+      />
+      <ProfileArraySection
+        title="Education"
+        fieldName="education"
+        isEditing={isEditing}
+        items={draft.education}
+        displayItems={profileData.education}
+        inputClassName={getControlClass("profile-input", "education")}
+        placeholder="Example: BSc Computer Science, UBC Okanagan"
+        helperText="Add each school, degree, or program separately."
+        addLabel="Add Education"
+        error={fieldErrors.education}
+        onItemChange={(index, value) => handleListItemChange("education", index, value)}
+        onAddItem={() => handleAddListItem("education")}
+        onRemoveItem={(index) => handleRemoveListItem("education", index)}
+      />
+      <ProfileTextInputSection
+        title="Current Job Position"
+        isEditing={isEditing}
+        inputClassName={getControlClass("profile-input", "currentPosition")}
+        name="currentPosition"
+        value={draft.currentPosition}
+        onChange={handleDraftChange}
+        displayValue={profileData.currentPosition}
+        error={fieldErrors.currentPosition}
+      />
+      <ProfileLinkSection
+        title="Resume"
+        isEditing={isEditing}
+        inputClassName={getControlClass("profile-input", "resumeLink")}
+        name="resumeLink"
+        value={draft.resumeLink}
+        onChange={handleDraftChange}
+        href={profileData.resumeLink}
+        linkLabel="Open Resume"
+        emptyText="No resume link available."
+        error={fieldErrors.resumeLink}
+      />
+    </ProfileEditorFrame>
   );
 }
 

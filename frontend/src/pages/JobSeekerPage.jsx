@@ -1,55 +1,17 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import JobCard from "../components/JobCard";
-import { fetchJobs } from "../lib/jobsApi";
+import JobPreviewGrid from "../components/JobPreviewGrid";
+import { useJobPreviewList } from "../jobs/useJobPreviewList";
 import { routePaths } from "../routing/routes";
 import "../styles/JobSeekerPage.css";
 
+const SEEKER_DASHBOARD_JOBS_QUERY = Object.freeze({
+  limit: 6,
+  sortBy: "title",
+  sortOrder: "asc",
+});
+
 function JobSeekerPage() {
-  const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    let isActive = true;
-
-    async function loadJobs() {
-      try {
-        const response = await fetchJobs({
-          limit: 6,
-          sortBy: "title",
-          sortOrder: "asc",
-        });
-
-        if (!isActive) {
-          return;
-        }
-
-        if (!response.ok) {
-          setError(response.data.message || "Could not load jobs.");
-          setLoading(false);
-          return;
-        }
-
-        setJobs(Array.isArray(response.data.jobs) ? response.data.jobs : []);
-        setError("");
-        setLoading(false);
-      } catch {
-        if (!isActive) {
-          return;
-        }
-
-        setError("Could not connect to the server.");
-        setLoading(false);
-      }
-    }
-
-    void loadJobs();
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
+  const { jobs, loading, error } = useJobPreviewList(SEEKER_DASHBOARD_JOBS_QUERY);
 
   return (
     <main className="landing-page">
@@ -95,28 +57,7 @@ function JobSeekerPage() {
           <p className="section-label">Live Jobs</p>
           <h2>Browse current roles from the job board</h2>
         </div>
-
-        {loading ? <p className="page-status">Loading jobs...</p> : null}
-        {error ? <p className="page-status">{error}</p> : null}
-        {!loading && !error ? (
-          jobs.length > 0 ? (
-            <div className="job-grid">
-              {jobs.map((job) => (
-                <JobCard
-                  key={job.id}
-                  jobId={job.id}
-                  title={job.title}
-                  category={job.category}
-                  country={job.country}
-                  salary={job.salary}
-                  currency={job.currency}
-                />
-              ))}
-            </div>
-          ) : (
-            <p className="page-status">No jobs available right now.</p>
-          )
-        ) : null}
+        <JobPreviewGrid jobs={jobs} loading={loading} error={error} />
       </section>
     </main>
   );
