@@ -70,3 +70,88 @@ export async function addJobComment(jobId, userId, text) {
         },
     };
 }
+
+export async function updateJobComment(jobId, commentId, userId, text) {
+    if (!jobId || !commentId || !userId) {
+        throw appError("INVALID_REQUEST", "Job id, comment id and user id are required");
+    }
+
+    if (typeof text !== "string" || !text.trim()) {
+        throw appError("INVALID_REQUEST", "Comment is required");
+    }
+
+    const job = await findJobById(jobId);
+    if (!job) {
+        throw appError("NOT_FOUND", "Job not found");
+    }
+
+    const discussion = await findDiscussionByJobId(jobId);
+    if (!discussion) {
+        throw appError("NOT_FOUND", "Discussion not found");
+    }
+
+    const comment = discussion.comments.id(commentId);
+    if (!comment) {
+        throw appError("NOT_FOUND", "Comment not found");
+    }
+
+    if (String(comment.userId) !== String(userId)) {
+        throw appError("FORBIDDEN", "You are not allowed to edit this comment");
+    }
+
+    comment.comment = text.trim();
+    await discussion.save();
+
+    await discussion.populate({ path: "comments.userId", select: "name" });
+
+    return {
+        discussion: {
+            jobId: String(discussion.jobId),
+            comments: mapComments(discussion.comments),
+        },
+    };
+}
+
+export async function deleteJobComment(jobId, commentId, userId) {
+    if (!jobId || !commentId || !userId) {
+        throw appError("INVALID_REQUEST", "Job id, comment id and user id are required");
+    }
+
+    const job = await findJobById(jobId);
+    if (!job) {
+        throw appError("NOT_FOUND", "Job not found");
+    }
+
+    const discussion = await findDiscussionByJobId(jobId);
+    if (!discussion) {
+        throw appError("NOT_FOUND", "Discussion not found");
+    }
+    
+    const comment = discussion.comments.id(commentId);
+    if (!comment) {
+        throw appError("NOT_FOUND", "Comment not found");
+    }
+
+    if (String(comment.userId) !== String(userId)) {
+        throw appError("FORBIDDEN", "You are not allowed to delete this comment");
+    }
+
+    discussion.comments.pull(commentId);
+
+    try {
+        await discussion.save();
+    } catch (saveErr) {
+        console.error("Failed saving discussion after comment deletion", saveErr);
+        throw saveErr;
+    }
+
+
+    await discussion.populate({ path: "comments.userId", select: "name" });
+
+    return {
+        discussion: {
+            jobId: String(discussion.jobId),
+            comments: mapComments(discussion.comments),
+        },
+    };
+}
