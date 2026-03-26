@@ -8,6 +8,7 @@ import {
     getJobs,
     updateJob,
 } from "../controllers/jobController.js";
+import { getDiscussion, addComment, updateComment, deleteComment } from "../controllers/jobDiscussionController.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { requireRole } from "../middleware/requireRole.js";
 import { validateBody } from "../middleware/validateBody.js";
@@ -19,6 +20,10 @@ import {
     listJobsQuerySchema,
     updateJobSchema,
 } from "../validators/jobSchemas.js";
+import {
+    createJobDiscussionCommentSchema,
+    jobDiscussionCommentParamsSchema,
+} from "../validators/jobDiscussionSchemas.js";
 
 const jobRouter = express.Router();
 
@@ -27,6 +32,31 @@ jobRouter.get("/options", getJobOptions);
 jobRouter.get("/me", requireAuth, requireRole("employer"), validateQuery(listJobsQuerySchema), getEmployerJobs);
 jobRouter.post("/", requireAuth, requireRole("employer"), validateBody(createJobSchema), createJob);
 jobRouter.get("/:id", validateParams(jobParamsSchema), getJobById);
+jobRouter.get(
+    "/:id/discussion",
+    validateParams(jobParamsSchema),
+    getDiscussion
+);
+jobRouter.post(
+    "/:id/discussion",
+    requireAuth,
+    validateParams(jobParamsSchema),
+    validateBody(createJobDiscussionCommentSchema),
+    addComment
+);
+jobRouter.patch(
+    "/:id/discussion/:commentId",
+    requireAuth,
+    validateParams(jobDiscussionCommentParamsSchema),
+    validateBody(createJobDiscussionCommentSchema),
+    updateComment
+);
+jobRouter.delete(
+    "/:id/discussion/:commentId",
+    requireAuth,
+    validateParams(jobDiscussionCommentParamsSchema),
+    deleteComment
+);
 jobRouter.patch(
     "/:id",
     requireAuth,
