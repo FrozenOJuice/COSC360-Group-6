@@ -6,8 +6,6 @@ import {
 } from "../services/profilePresentation.js";
 
 export function toSeekerProfileDto(profile) {
-    const resumeLink = normalizeOptionalString(profile.resumeLink);
-
     return {
         ...createBaseProfilePayload(profile),
         bio: normalizeOptionalString(profile.bio),
@@ -20,7 +18,12 @@ export function toSeekerProfileDto(profile) {
             assetPath: (ownerId) => `/api/seeker-profile/${ownerId}/picture`,
         }),
         phone: normalizeOptionalString(profile.phone),
-        resumeLink: resumeLink === "#" ? "" : resumeLink,
+        resume: buildProfileAssetUrl({
+            profile,
+            hasUploadedAsset: profile.hasUploadedResume,
+            assetPath: (ownerId) => `/api/seeker-profile/${ownerId}/resume`,
+            fallback: "",
+        }),
     };
 }
 

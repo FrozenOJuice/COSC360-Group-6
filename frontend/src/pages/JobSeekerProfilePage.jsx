@@ -1,14 +1,17 @@
+import { useState } from "react";
 import { useAuth } from "../auth/useAuth";
+import { API_BASE_URL } from "../lib/api";
 import {
   getCurrentSeekerProfile,
   removeCurrentSeekerProfilePicture,
+  removeCurrentSeekerResume,
   uploadCurrentSeekerProfilePicture,
   updateCurrentSeekerProfile,
+  uploadCurrentSeekerResume,
 } from "../lib/seekerProfileApi";
 import ProfileEditorFrame from "../profile/ProfileEditorFrame";
 import {
   ProfileArraySection,
-  ProfileLinkSection,
   ProfileTextAreaSection,
   ProfileTextInputSection,
 } from "../profile/ProfileFieldSections";
@@ -35,13 +38,16 @@ function createSeekerDraft(profile) {
     currentPosition: profile?.currentPosition || "",
     profilePicture: profile?.profilePicture || "/default-profile.png",
     phone: profile?.phone || "",
-    resumeLink: profile?.resumeLink || "",
+    resume: profile?.resume || "",
     visibility: profile?.visibility === "public" ? "public" : "private",
   };
 }
 
 function JobSeekerProfilePage() {
   const { user } = useAuth();
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
+  const [isRemovingResume, setIsRemovingResume] = useState(false);
+  const [resumeError, setResumeError] = useState("");
   const {
     profile,
     draft,
@@ -75,7 +81,6 @@ function JobSeekerProfilePage() {
       education: normalizeEditableList(nextDraft.education),
       currentPosition: nextDraft.currentPosition,
       phone: nextDraft.phone,
-      resumeLink: nextDraft.resumeLink,
       visibility: nextDraft.visibility,
     }),
     saveErrorMessage: "Failed to update profile",
@@ -136,6 +141,36 @@ function JobSeekerProfilePage() {
     await removeProfileImage();
   }
 
+  async function handleResumeUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    setIsUploadingResume(true);
+    setResumeError("");
+    const result = await uploadCurrentSeekerResume(file);
+    if (result.ok) {
+      setDraft((current) => ({ ...current, resume: result.data?.resume || "" }));
+    } else {
+      setResumeError(result.error?.message || "Failed to upload resume");
+    }
+    setIsUploadingResume(false);
+    event.target.value = "";
+  }
+
+  async function handleRemoveResume() {
+    setIsRemovingResume(true);
+    setResumeError("");
+    const result = await removeCurrentSeekerResume();
+    if (result.ok) {
+      setDraft((current) => ({ ...current, resume: "" }));
+    } else {
+      setResumeError(result.error?.message || "Failed to remove resume");
+    }
+    setIsRemovingResume(false);
+  }
+
   if (loading) {
     return <div className="profile-container">Loading...</div>;
   }
@@ -151,7 +186,7 @@ function JobSeekerProfilePage() {
     currentPosition: profile?.currentPosition || "No current position.",
     profilePicture: profile?.profilePicture || "/default-profile.png",
     phone: profile?.phone || "No phone number.",
-    resumeLink: profile?.resumeLink || "",
+    resume: profile?.resume || "",
   };
   const visibilityValue = isEditing ? draft.visibility : profile?.visibility;
   const hasCustomProfilePicture = profile?.profilePicture && profile.profilePicture !== "/default-profile.png";
@@ -268,18 +303,37 @@ function JobSeekerProfilePage() {
         displayValue={profileData.currentPosition}
         error={fieldErrors.currentPosition}
       />
-      <ProfileLinkSection
-        title="Resume"
-        isEditing={isEditing}
-        inputClassName={getControlClass("profile-input", "resumeLink")}
-        name="resumeLink"
-        value={draft.resumeLink}
-        onChange={handleDraftChange}
-        href={profileData.resumeLink}
-        linkLabel="Open Resume"
-        emptyText="No resume link available."
-        error={fieldErrors.resumeLink}
-      />
+      <section className="profile-section">
+        <h2>Resume</h2>
+        {isEditing ? (
+          <div className="profile-field">
+            <label className="profile-file-input">
+              <span>{isUploadingResume ? "Uploading..." : "Upload PDF"}</span>
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={handleResumeUpload}
+                disabled={isUploadingResume || isRemovingResume}
+              />
+            </label>
+            {draft.resume && (
+              <button
+                type="button"
+                className="profile-remove-button"
+                onClick={handleRemoveResume}
+                disabled={isUploadingResume || isRemovingResume}
+              >
+                {isRemovingResume ? "Removing..." : "Remove Resume"}
+              </button>
+            )}
+            {resumeError && <p className="profile-field-error">{resumeError}</p>}
+          </div>
+        ) : (
+          profileData.resume
+            ? <a href={`${API_BASE_URL}${profileData.resume}`} target="_blank" rel="noreferrer">View Resume</a>
+            : <p>No resume uploaded.</p>
+        )}
+      </section>
     </ProfileEditorFrame>
   );
 }

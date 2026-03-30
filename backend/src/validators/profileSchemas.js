@@ -67,7 +67,6 @@ export const updateSeekerProfileSchema = z.object({
             .max(120, "Current position must be at most 120 characters")
     ),
     phone: optionalTrimmedString(phoneSchema),
-    resumeLink: optionalTrimmedString(urlOrAppPathSchema),
     visibility: optionalTrimmedString(visibilitySchema),
 }).strict();
 

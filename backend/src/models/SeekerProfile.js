@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import {
     allowOptionalPhone,
-    allowOptionalUrlOrAppPath,
     buildStringArrayField,
 } from "./profileFieldHelpers.js";
 
@@ -52,15 +51,18 @@ const seekerProfileSchema = new mongoose.Schema({
             message: "Phone number contains invalid characters",
         },
     },
-    resumeLink: {
+    resumeData: {
+        type: Buffer,
+        select: false,
+    },
+    resumeContentType: {
         type: String,
         trim: true,
-        maxlength: 500,
-        default: "#",
-        validate: {
-            validator: allowOptionalUrlOrAppPath,
-            message: "Resume link must start with /, http://, or https://",
-        },
+        select: false,
+    },
+    hasUploadedResume: {
+        type: Boolean,
+        default: false,
     },
 }, {
     collection: "seekerProfiles",

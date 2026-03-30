@@ -7,6 +7,10 @@ export async function findSeekerProfileByUserId(userId, options = {}) {
         query.select("+profilePictureData +profilePictureContentType");
     }
 
+    if (options.includeResumeData) {
+        query.select("+resumeData +resumeContentType");
+    }
+
     if (options.session) {
         query.session(options.session);
     }
@@ -34,6 +38,42 @@ export async function setSeekerProfilePicture(profileId, pictureData) {
                 profilePictureData: pictureData.buffer,
                 profilePictureContentType: pictureData.contentType,
                 hasUploadedProfilePicture: true,
+            },
+        },
+        {
+            new: true,
+            runValidators: true,
+        }
+    ).exec();
+}
+
+export async function setSeekerResume(profileId, resumeData) {
+    return SeekerProfile.findByIdAndUpdate(
+        profileId,
+        {
+            $set: {
+                resumeData: resumeData.buffer,
+                resumeContentType: resumeData.contentType,
+                hasUploadedResume: true,
+            },
+        },
+        {
+            new: true,
+            runValidators: true,
+        }
+    ).exec();
+}
+
+export async function clearSeekerResume(profileId) {
+    return SeekerProfile.findByIdAndUpdate(
+        profileId,
+        {
+            $set: {
+                hasUploadedResume: false,
+            },
+            $unset: {
+                resumeData: 1,
+                resumeContentType: 1,
             },
         },
         {

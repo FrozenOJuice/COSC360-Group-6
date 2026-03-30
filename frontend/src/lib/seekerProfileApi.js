@@ -42,3 +42,19 @@ export async function updateCurrentSeekerProfile(profileData) {
     body: JSON.stringify(profileData),
   }, "Failed to update seeker profile");
 }
+
+export async function uploadCurrentSeekerResume(file) {
+  const formData = new FormData();
+  formData.append("resume", file);
+
+  return requestSeekerProfile("/api/seeker-profile/me/resume", {
+    method: "POST",
+    body: formData,
+  }, "Failed to upload resume");
+}
+
+export async function removeCurrentSeekerResume() {
+  return requestSeekerProfile("/api/seeker-profile/me/resume", {
+    method: "DELETE",
+  }, "Failed to remove resume");
+}
