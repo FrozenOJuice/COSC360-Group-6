@@ -33,8 +33,17 @@ export const registerSchema = z.object({
         .max(60, "Name must be at most 60 characters"),
     email: emailSchema,
     password: registrationPasswordSchema,
+    confirmPassword: registrationPasswordSchema,
     role: z.enum(["seeker", "employer"]).optional(),
-}).strict();
+}).strict().superRefine((data, ctx) => {
+    if (data.password !== data.confirmPassword) {
+        ctx.addIssue({
+            code: "custom",
+            path: ["confirmPassword"],
+            message: "Passwords do not match",
+        });
+    }
+});
 
 export const loginSchema = z.object({
     email: emailSchema,
