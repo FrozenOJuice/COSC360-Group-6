@@ -13,11 +13,11 @@ export const addComment = asyncHandler(async (req, res) => {
 });
 
 export const updateComment = asyncHandler(async (req, res) => {
-    const result = await updateJobComment(req.params?.id, req.params?.commentId, req.auth?.userId, req.body?.comment);
+    const result = await updateJobComment(req.params?.id, req.params?.commentId, req.auth?.userId, req.auth?.role, req.body?.comment);
     return sendSuccess(res, result);
 });
 
 export const deleteComment = asyncHandler(async (req, res) => {
-    const result = await deleteJobComment(req.params?.id, req.params?.commentId, req.auth?.userId);
+    const result = await deleteJobComment(req.params?.id, req.params?.commentId, req.auth?.userId, req.auth?.role);
     return sendSuccess(res, result);
 });

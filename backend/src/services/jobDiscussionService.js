@@ -71,7 +71,7 @@ export async function addJobComment(jobId, userId, text) {
     };
 }
 
-export async function updateJobComment(jobId, commentId, userId, text) {
+export async function updateJobComment(jobId, commentId, userId, role, text) {
     if (!jobId || !commentId || !userId) {
         throw appError("INVALID_REQUEST", "Job id, comment id and user id are required");
     }
@@ -95,7 +95,7 @@ export async function updateJobComment(jobId, commentId, userId, text) {
         throw appError("NOT_FOUND", "Comment not found");
     }
 
-    if (String(comment.userId) !== String(userId)) {
+    if (String(comment.userId) !== String(userId) && role !== "admin") {
         throw appError("FORBIDDEN", "You are not allowed to edit this comment");
     }
 
@@ -112,7 +112,7 @@ export async function updateJobComment(jobId, commentId, userId, text) {
     };
 }
 
-export async function deleteJobComment(jobId, commentId, userId) {
+export async function deleteJobComment(jobId, commentId, userId, role) {
     if (!jobId || !commentId || !userId) {
         throw appError("INVALID_REQUEST", "Job id, comment id and user id are required");
     }
@@ -132,7 +132,7 @@ export async function deleteJobComment(jobId, commentId, userId) {
         throw appError("NOT_FOUND", "Comment not found");
     }
 
-    if (String(comment.userId) !== String(userId)) {
+    if (String(comment.userId) !== String(userId) && role !== "admin") {
         throw appError("FORBIDDEN", "You are not allowed to delete this comment");
     }
 
