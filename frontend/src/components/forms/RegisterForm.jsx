@@ -72,25 +72,68 @@ function RegisterForm() {
     };
   }, []);
 
+  function validateFields() {
+    const errors = [];
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S+$/;
+
+    const nameTrimmed = formData.name.trim();
+    if (!nameTrimmed) {
+      errors.push({ field: "Name", message: "Name is required" });
+    } else if (nameTrimmed.length < 2) {
+      errors.push({ field: "Name", message: "Name must be at least 2 characters" });
+    } else if (nameTrimmed.length > 60) {
+      errors.push({ field: "Name", message: "Name must be at most 60 characters" });
+    }
+
+    const emailTrimmed = formData.email.trim().toLowerCase();
+    if (!emailTrimmed) {
+      errors.push({ field: "Email", message: "Email is required" });
+    } else if (emailTrimmed.length > 128) {
+      errors.push({ field: "Email", message: "Email must be at most 128 characters" });
+    } else if (!emailRegex.test(emailTrimmed)) {
+      errors.push({ field: "Email", message: "Invalid email" });
+    }
+
+    const password = formData.password || "";
+    if (!password) {
+      errors.push({ field: "Password", message: "Password is required" });
+    } else {
+      if (password.length < 8) {
+        errors.push({ field: "Password", message: "Password must be at least 8 characters" });
+      }
+      if (password.length > 72) {
+        errors.push({ field: "Password", message: "Password must be at most 72 characters" });
+      }
+      if (!passwordRegex.test(password)) {
+        errors.push({ field: "Password", message: "Password must include uppercase, lowercase, number, and symbol, and contain no spaces" });
+      }
+    }
+
+    if (formData.confirmPassword !== password) {
+      errors.push({ field: "Confirm Password", message: "Passwords do not match" });
+    }
+
+    const valid = errors.length === 0;
+
+    if (!valid) {
+      setStatus({
+        type: "error",
+        message: "Please fix the highlighted errors.",
+        details: errors,
+      });
+      setIsSubmitting(false);
+    }
+
+    return valid;
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setIsSubmitting(true);
     setStatus({ type: "", message: "", details: [] });
 
-    if (formData.password !== formData.confirmPassword) {
-      setStatus({
-        type: "error",
-        message: "Passwords do not match.",
-        details: [
-          {
-            field: "confirmPassword",
-            message: "Passwords do not match",
-          },
-        ],
-      });
-      setIsSubmitting(false);
-      return;
-    }
+    if (!validateFields()) { return; }
 
     const registerPayload = {
       name: formData.name,
@@ -113,20 +156,16 @@ function RegisterForm() {
       }
 
       if (profilePictureFile && !isEmployer) {
-        const uploadResult = await uploadCurrentSeekerProfilePicture(
-          profilePictureFile
-        );
+        const uploadResult = await uploadCurrentSeekerProfilePicture(profilePictureFile);
 
         if (!uploadResult.ok) {
           setStatus({
             type: "error",
-            message:
-              "Account created, but profile picture upload failed.",
+            message: "Account created, but profile picture upload failed.",
             details: uploadResult.error?.details || [
               {
                 field: "profilePicture",
-                message: uploadResult.error?.message ||
-                  "Failed to upload profile picture",
+                message: uploadResult.error?.message || "Failed to upload profile picture",
               },
             ],
           });
