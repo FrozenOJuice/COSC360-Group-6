@@ -6,6 +6,7 @@ import {
     getBoardJobOptions,
     listBoardJobs,
     listEmployerJobs,
+    listAdminJobs,
     updateEmployerJob,
 } from "../services/jobService.js";
 import { sendSuccess } from "../utils/apiResponse.js";
@@ -30,17 +31,22 @@ export const getEmployerJobs = asyncHandler(async (req, res) => {
     return sendSuccess(res, result);
 });
 
+export const getAdminJobs = asyncHandler(async (req, res) => {
+    const result = await listAdminJobs(req.auth?.userId, req.auth?.role, req.validatedQuery ?? req.query);
+    return sendSuccess(res, result);
+});
+
 export const createJob = asyncHandler(async (req, res) => {
     const result = await createEmployerJob(req.auth?.userId, req.body);
     return sendSuccess(res, result, 201);
 });
 
 export const updateJob = asyncHandler(async (req, res) => {
-    const result = await updateEmployerJob(req.auth?.userId, req.params?.id, req.body);
+    const result = await updateEmployerJob(req.auth?.userId, req.auth?.role, req.params?.id, req.body);
     return sendSuccess(res, result);
 });
 
 export const deleteJob = asyncHandler(async (req, res) => {
-    const result = await deleteEmployerJob(req.auth?.userId, req.params?.id);
+    const result = await deleteEmployerJob(req.auth?.userId, req.auth?.role, req.params?.id);
     return sendSuccess(res, result);
 });
