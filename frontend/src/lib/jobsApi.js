@@ -16,6 +16,14 @@ export async function fetchEmployerJobs(query = {}) {
   });
 }
 
+export async function fetchAdminJobs(query = {}) {
+  return requestJson(`/api/jobs/admin${buildQueryString(query)}`, {
+    method: "GET",
+  }, {
+    fallbackMessage: "Could not load admin jobs.",
+  });
+}
+
 export async function fetchJobById(jobId) {
   const result = await requestJson(`/api/jobs/${jobId}`, {
     method: "GET",

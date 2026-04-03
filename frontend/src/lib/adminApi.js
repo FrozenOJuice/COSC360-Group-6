@@ -31,3 +31,27 @@ export async function updateAdminUserStatus(userId, status) {
 
   return mapResultData(result, (data) => data?.user ?? null);
 }
+
+export async function updateAdminJob(jobId, jobData) {
+  const result = await requestJson(`/api/admin/jobs/${jobId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(jobData),
+  }, {
+    fallbackMessage: "Could not update job.",
+  });
+
+  return mapResultData(result, (data) => data?.job ?? null);
+}
+
+export async function deleteAdminJob(jobId) {
+  const result = await requestJson(`/api/admin/jobs/${jobId}`, {
+    method: "DELETE",
+  }, {
+    fallbackMessage: "Could not delete job.",
+  });
+
+  return mapResultData(result, (data) => data?.job ?? null);
+}
