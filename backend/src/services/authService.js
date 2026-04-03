@@ -21,36 +21,26 @@ export async function registerUser(payload) {
         throw appError("ROLE_NOT_ALLOWED", "Admin role cannot be selected during registration");
     }
 
-    const session = await mongoose.startSession();
-    let user;
-    let accessToken;
-    let refreshToken;
+    const existingUser = await findByEmail(email);
 
-    try {
-        await session.withTransaction(async () => {
-            const existingUser = await findByEmail(email, { session });
-            if (existingUser) {
-                throw appError("EMAIL_ALREADY_IN_USE", "Email is already registered");
-            }
-
-            user = await createUser({ name, email, password, role, }, { session });
-
-            if (user.role === "seeker") {
-                await createInitialSeekerProfile(user._id, { session });
-            }
-
-            if (user.role === "employer") {
-                await createInitialEmployerProfile(user, { session });
-            }
-
-            accessToken = signAccessToken(user.id);
-            refreshToken = signRefreshToken(user.id);
-            const refreshTokenHash = hashRefreshToken(refreshToken);
-            await setRefreshTokenHash(user.id, refreshTokenHash, { session });
-        });
-    } finally {
-        await session.endSession();
+    if (existingUser) {
+        throw appError("EMAIL_ALREADY_IN_USE", "Email is already registered");
     }
+
+    const user = await createUser({ name, email, password, role });
+
+    if (user.role === "seeker") {
+        await createInitialSeekerProfile(user._id);
+    }
+
+    if (user.role === "employer") {
+        await createInitialEmployerProfile(user);
+    }
+
+    const accessToken = signAccessToken(user.id);
+    const refreshToken = signRefreshToken(user.id);
+    const refreshTokenHash = hashRefreshToken(refreshToken);
+    await setRefreshTokenHash(user.id, refreshTokenHash);
 
     return {
         user: toUserDto(user),
