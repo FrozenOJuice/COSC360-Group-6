@@ -8,6 +8,7 @@ import {
 import { toUserDto } from "../dto/userDto.js";
 import { normalizeTextSearch, toPositiveInt } from "./queryUtils.js";
 import { appError } from "../utils/appError.js";
+import { broadcastAdminUsers } from "../utils/adminEventBus.js";
 
 const USER_STATUSES = new Set(["active", "disabled"]);
 const SORT_FIELDS = new Set(["name", "email", "role", "status"]);
@@ -136,6 +137,7 @@ export async function setManagedUserStatus({ userId, status }) {
         await clearRefreshTokenHash(updatedUser.id);
     }
 
+    broadcastAdminUsers();
     return {
         user: toUserDto(updatedUser),
     };

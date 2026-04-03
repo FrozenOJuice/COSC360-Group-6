@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import { useDebouncedQueryInput } from "../hooks/useDebouncedQueryInput";
 import { usePaginatedResource } from "../hooks/usePaginatedResource";
+import { useJobStream } from "../jobs/useJobStream";
 import {
   createEmployerJob,
   deleteEmployerJob,
@@ -216,6 +217,8 @@ function EmployerPage() {
     normalizeResult: normalizeJobsResult,
     fallbackMessage: "Could not load employer jobs.",
   });
+
+  useJobStream(reload);
 
   const commitSearch = useCallback((search) => {
     updateQuery({ search, page: 1 });
