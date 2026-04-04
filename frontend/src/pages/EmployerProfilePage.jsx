@@ -14,6 +14,7 @@ import {
 import ProfileMediaPanel from "../profile/ProfileMediaPanel";
 import ProfileVisibilityCard from "../profile/ProfileVisibilityCard";
 import { useProfileEditor } from "../profile/useProfileEditor";
+import { useProfileStream } from "../profile/useProfileStream";
 import "../styles/ProfilePage.css";
 
 function createEmployerDraft(profile, user) {
@@ -50,6 +51,7 @@ function EmployerProfilePage() {
     saveDraft,
     uploadProfileImage,
     removeProfileImage,
+    reload,
   } = useProfileEditor({
     user,
     createDraft: createEmployerDraft,
@@ -75,6 +77,8 @@ function EmployerProfilePage() {
     removeSuccessMessage: "Employer logo removed.",
     imageFieldName: "logo",
   });
+
+  useProfileStream("/api/employer-profile/me/stream", reload);
 
   async function handleSubmit(event) {
     event.preventDefault();
