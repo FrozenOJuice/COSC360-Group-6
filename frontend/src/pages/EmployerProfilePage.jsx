@@ -153,6 +153,7 @@ function EmployerProfilePage() {
           />
           <div className="profile-side-details">
             <h2>Contact Information</h2>
+            <p><strong>Username:</strong> {user?.username || "N/A"}</p>
             <p><strong>Account Name:</strong> {user?.name || "N/A"}</p>
             <p><strong>Account Email:</strong> {user?.email || "N/A"}</p>
             {isEditing ? (

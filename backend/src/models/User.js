@@ -11,6 +11,15 @@ const userSchema = new mongoose.Schema({
         minlength: 2,
         maxlength: 60,
     },
+    username: {
+        type: String,
+        required: true,
+        trim: true,
+        unique: true,
+        minlength: 3,
+        maxlength: 30,
+        match: [/^[a-zA-Z0-9_]+$/, "Username may only contain letters, numbers, and underscores"],
+    },
     email: {
         type: String,
         required: true,
@@ -47,12 +56,13 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.index(
-    { name: "text", email: "text" },
+    { name: "text", email: "text", username: "text" },
     {
         name: "user_text_search",
         weights: {
             email: 6,
             name: 3,
+            username: 4,
         },
     }
 );

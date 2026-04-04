@@ -229,6 +229,7 @@ function JobSeekerProfilePage() {
           />
           <div className="profile-side-details">
             <h2>Personal Information</h2>
+            <p><strong>Username:</strong> {user?.username || "N/A"}</p>
             <p><strong>Full Name:</strong> {user?.name || "N/A"}</p>
             <p><strong>Email:</strong> {user?.email || "N/A"}</p>
             {isEditing ? (

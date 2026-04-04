@@ -1,5 +1,15 @@
 import User from "../models/User.js";
 
+export async function findByUsername(username, options = {}) {
+    const query = User.findOne({ username });
+
+    if (options.session) {
+        query.session(options.session);
+    }
+
+    return query.exec();
+}
+
 export async function findByEmail(email, options = {}) {
     const query = User.findOne({ email });
 
