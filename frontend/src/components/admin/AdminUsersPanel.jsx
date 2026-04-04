@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
+import { useAdminUsersStream } from "../../admin/useAdminUsersStream";
 import { useDebouncedQueryInput } from "../../hooks/useDebouncedQueryInput";
 import { usePaginatedResource } from "../../hooks/usePaginatedResource";
 import { fetchAdminUsers, updateAdminUserStatus } from "../../lib/adminApi";
@@ -61,6 +62,8 @@ function AdminUsersPanel() {
     normalizeResult: normalizeUsersResult,
     fallbackMessage: "Could not load users.",
   });
+  useAdminUsersStream(reload);
+
   const [notice, setNotice] = useState("");
   const [pendingUserIds, setPendingUserIds] = useState({});
   const commitSearch = useCallback((search) => {

@@ -1,4 +1,5 @@
 import { appError } from "../utils/appError.js";
+import { broadcastDiscussion } from "../utils/discussionEventBus.js";
 import { findJobById } from "../repositories/jobRepository.js";
 import {
     findDiscussionByJobId,
@@ -63,15 +64,15 @@ export async function addJobComment(jobId, userId, text) {
 
     await discussion.populate({ path: "comments.userId", select: "name" });
 
-    return {
-        discussion: {
-            jobId: String(discussion.jobId),
-            comments: mapComments(discussion.comments),
-        },
+    const result = {
+        jobId: String(discussion.jobId),
+        comments: mapComments(discussion.comments),
     };
+    broadcastDiscussion(jobId, result);
+    return { discussion: result };
 }
 
-export async function updateJobComment(jobId, commentId, userId, text) {
+export async function updateJobComment(jobId, commentId, userId, role, text) {
     if (!jobId || !commentId || !userId) {
         throw appError("INVALID_REQUEST", "Job id, comment id and user id are required");
     }
@@ -95,7 +96,7 @@ export async function updateJobComment(jobId, commentId, userId, text) {
         throw appError("NOT_FOUND", "Comment not found");
     }
 
-    if (String(comment.userId) !== String(userId)) {
+    if (String(comment.userId) !== String(userId) && role !== "admin") {
         throw appError("FORBIDDEN", "You are not allowed to edit this comment");
     }
 
@@ -104,15 +105,15 @@ export async function updateJobComment(jobId, commentId, userId, text) {
 
     await discussion.populate({ path: "comments.userId", select: "name" });
 
-    return {
-        discussion: {
-            jobId: String(discussion.jobId),
-            comments: mapComments(discussion.comments),
-        },
+    const result = {
+        jobId: String(discussion.jobId),
+        comments: mapComments(discussion.comments),
     };
+    broadcastDiscussion(jobId, result);
+    return { discussion: result };
 }
 
-export async function deleteJobComment(jobId, commentId, userId) {
+export async function deleteJobComment(jobId, commentId, userId, role) {
     if (!jobId || !commentId || !userId) {
         throw appError("INVALID_REQUEST", "Job id, comment id and user id are required");
     }
@@ -132,7 +133,7 @@ export async function deleteJobComment(jobId, commentId, userId) {
         throw appError("NOT_FOUND", "Comment not found");
     }
 
-    if (String(comment.userId) !== String(userId)) {
+    if (String(comment.userId) !== String(userId) && role !== "admin") {
         throw appError("FORBIDDEN", "You are not allowed to delete this comment");
     }
 
@@ -148,10 +149,10 @@ export async function deleteJobComment(jobId, commentId, userId) {
 
     await discussion.populate({ path: "comments.userId", select: "name" });
 
-    return {
-        discussion: {
-            jobId: String(discussion.jobId),
-            comments: mapComments(discussion.comments),
-        },
+    const result = {
+        jobId: String(discussion.jobId),
+        comments: mapComments(discussion.comments),
     };
+    broadcastDiscussion(jobId, result);
+    return { discussion: result };
 }

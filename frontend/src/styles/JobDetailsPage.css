@@ -13,6 +13,24 @@
 .job-details-back:hover {
   text-decoration: underline;
 }
+.job-details-apply-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+.job-details-apply {
+  width: 150px;
+  align-items: center;
+  font-weight: bold;
+  color:white;
+  border-radius: 15px;
+  background-color: #3163d4;
+  padding: 10px 14px;
+}
+.job-details-apply:hover {
+  background-color: #274ea1;
+
+}
 
 .job-details-card h1,
 .job-details-subtitle,

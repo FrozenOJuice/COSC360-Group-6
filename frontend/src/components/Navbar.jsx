@@ -12,7 +12,7 @@ const NAV_BY_VARIANT = {
   admin: [
     { to: withHash(routePaths.admin, "admin-overview"), label: "Overview", muted: false },
     { to: withHash(routePaths.admin, "admin-users"), label: "Users", muted: true },
-    { to: withHash(routePaths.admin, "admin-priority"), label: "Priority", muted: true },
+    { to: withHash(routePaths.jobs), label: "Browse Jobs", muted: true },
     { label: "Logout", muted: true, action: "logout" },
   ],
   jobSeeker: [

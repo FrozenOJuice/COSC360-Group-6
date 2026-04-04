@@ -1,5 +1,15 @@
 import User from "../models/User.js";
 
+export async function findByUsername(username, options = {}) {
+    const query = User.findOne({ username });
+
+    if (options.session) {
+        query.session(options.session);
+    }
+
+    return query.exec();
+}
+
 export async function findByEmail(email, options = {}) {
     const query = User.findOne({ email });
 
@@ -34,6 +44,10 @@ export async function findById(userId, options = {}) {
     }
 
     return query.exec();
+}
+
+export async function findUsersByIds(ids) {
+  return User.find({ _id: { $in: ids } }).lean().exec();
 }
 
 export async function listUsers(filters = {}, options = {}) {

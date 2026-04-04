@@ -42,6 +42,13 @@ const jobSchema = new mongoose.Schema(
             minlength: 2,
             maxlength: 10,
         },
+        applicantIds: [
+            {
+                type: mongoose.Schema.Types.ObjectId,   
+                ref: "User",
+            },
+        ],
+
     },
     {
         collection: "jobs",

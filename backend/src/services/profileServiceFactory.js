@@ -1,4 +1,5 @@
 import { appError } from "../utils/appError.js";
+import { broadcastProfile } from "../utils/profileEventBus.js";
 import { assertCanReadProfile } from "./profileAccess.js";
 
 function assertProfileExists(profile, message) {
@@ -45,6 +46,7 @@ export function createProfileService({
         delete safeProfileData._id;
 
         const profile = await updateProfile(existingProfile._id, safeProfileData);
+        broadcastProfile(userId);
         return normalizeProfile(profile);
     }
 
@@ -57,6 +59,7 @@ export function createProfileService({
             contentType: file.mimetype,
         });
 
+        broadcastProfile(userId);
         return normalizeProfile(profile);
     }
 
@@ -65,6 +68,7 @@ export function createProfileService({
         assertProfileExists(existingProfile, profileNotFoundMessage);
 
         const profile = await clearProfileMedia(existingProfile._id);
+        broadcastProfile(userId);
         return normalizeProfile(profile);
     }
 

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { fetchJobById, fetchJobDiscussion, postJobDiscussionComment, updateJobDiscussionComment, deleteJobDiscussionComment } from "../lib/jobsApi";
+import { useDiscussionStream } from "../jobs/useDiscussionStream";
 import { useAuth } from "../auth/useAuth";
 import { routePaths } from "../routing/routes";
 import Comment from "../components/Comment";
 import "../styles/JobDetailsPage.css";
+import { postApplicantToJob } from "../lib/jobsApi";
 
 function formatSalary(value, currency) {
   if (typeof value !== "number" || Number.isNaN(value)) {
@@ -31,6 +33,7 @@ function JobDetailsPage({ jobId: jobIdProp }) {
   const [commentError, setCommentError] = useState("");
   const [commentActionLoading, setCommentActionLoading] = useState(false);
   const [commentActionError, setCommentActionError] = useState("");
+  const [hasApplied, setHasApplied] = useState(false);
 
   useEffect(() => {
     let isActive = true;
@@ -50,6 +53,11 @@ function JobDetailsPage({ jobId: jobIdProp }) {
         }
 
         setJob(response.data ?? null);
+
+        if (user && response.data?.applicantIds) {
+          setHasApplied(response.data.applicantIds.includes(String(user.id)));
+        }
+
         setError("");
         setLoading(false);
       } catch {
@@ -106,6 +114,8 @@ function JobDetailsPage({ jobId: jobIdProp }) {
       isActive = false;
     };
   }, [jobId]);
+
+  useDiscussionStream(jobId, setDiscussion);
 
   const salaryLabel = formatSalary(job?.salary, job?.currency);
   const subtitle = [job?.category, job?.country].filter(Boolean).join(" • ");
@@ -169,6 +179,18 @@ function JobDetailsPage({ jobId: jobIdProp }) {
     }
   }
 
+ async function handleSubmitID () {
+    const result = await postApplicantToJob(jobId, user.id);
+
+      if (!result.ok) {
+        alert(result.error?.message || "Could not apply to job.");
+        return;
+      }
+      alert("Successfully applied to job!");
+
+      setHasApplied(true);
+  }
+
   async function handleDeleteComment(commentId) {
     if (!user) {
       setCommentActionError("You must be logged in to delete comments.");
@@ -225,7 +247,20 @@ function JobDetailsPage({ jobId: jobIdProp }) {
                 <dt>Currency</dt>
                 <dd>{job.currency || "Unavailable"}</dd>
               </div>
+              
             </dl>
+            {!hasApplied && (
+              <div className="job-details-apply-container">
+                <button className="job-details-apply" onClick={() => handleSubmitID()}>
+                  <p>APPLY</p>
+                </button>
+              </div>
+            )}
+            {hasApplied && (
+              <div className="job-details-apply-container">
+                <p>You have applied to this job.</p>
+              </div>
+            )}
 
             <h1 className="discussion-header">Discussion Section</h1>
             {discussionLoading ? <p className="page-status">Loading discussion...</p> : null}
@@ -244,7 +279,7 @@ function JobDetailsPage({ jobId: jobIdProp }) {
                           userName={item.userName}
                           createdDate={item.createdAt}
                           comment={item.comment}
-                          isCommentOwned={item.userId === user?.id}
+                          isCommentOwned={item.userId === user?.id || user?.role === "admin"}
                           isActionLoading={commentActionLoading}
                           onUpdate={handleUpdateComment}
                           onDelete={handleDeleteComment}

@@ -26,6 +26,7 @@ const seekerProfileController = createProfileController({
 });
 
 export const {
+    streamSelfProfile: streamSelfSeekerProfile,
     getSelfProfile: getSelfSeekerProfile,
     updateSelfProfile: updateSelfSeekerProfile,
     uploadSelfProfileMedia: uploadSelfSeekerProfilePicture,

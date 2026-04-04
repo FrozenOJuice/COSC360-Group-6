@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { toUserDto } from "../dto/userDto.js";
-import { clearRefreshTokenHash, createUser, findByEmail, findById, setRefreshTokenHash, } from "../repositories/userRepository.js";
+import { clearRefreshTokenHash, createUser, findByEmail, findByUsername, findById, setRefreshTokenHash, } from "../repositories/userRepository.js";
 import { hashRefreshToken, signAccessToken, signRefreshToken, verifyRefreshToken, } from "./sessionService.js";
 import { appError } from "../utils/appError.js";
 import { createInitialEmployerProfile } from "./employerProfileService.js";
@@ -8,13 +8,14 @@ import { createInitialSeekerProfile } from "./seekerProfileService.js";
 
 export async function registerUser(payload) {
     const safePayload = payload || {};
-    const { name: rawName, email: rawEmail, password: rawPassword, role } = safePayload;
+    const { name: rawName, username: rawUsername, email: rawEmail, password: rawPassword, role } = safePayload;
     const name = typeof rawName === "string" ? rawName.trim() : "";
+    const username = typeof rawUsername === "string" ? rawUsername.trim() : "";
     const email = typeof rawEmail === "string" ? rawEmail.trim().toLowerCase() : "";
     const password = typeof rawPassword === "string" ? rawPassword : "";
 
-    if (!name || !email || !password) {
-        throw appError("INVALID_REQUEST", "Name, email, and password are required");
+    if (!name || !username || !email || !password) {
+        throw appError("INVALID_REQUEST", "Name, username, email, and password are required");
     }
 
     if (role === "admin") {
@@ -33,7 +34,12 @@ export async function registerUser(payload) {
                 throw appError("EMAIL_ALREADY_IN_USE", "Email is already registered");
             }
 
-            user = await createUser({ name, email, password, role, }, { session });
+            const existingUsername = await findByUsername(username, { session });
+            if (existingUsername) {
+                throw appError("USERNAME_ALREADY_IN_USE", "Username is already taken");
+            }
+
+            user = await createUser({ name, username, email, password, role, }, { session });
 
             if (user.role === "seeker") {
                 await createInitialSeekerProfile(user._id, { session });

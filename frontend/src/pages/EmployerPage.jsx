@@ -1,14 +1,17 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import { useDebouncedQueryInput } from "../hooks/useDebouncedQueryInput";
 import { usePaginatedResource } from "../hooks/usePaginatedResource";
+import { useJobStream } from "../jobs/useJobStream";
+import JobListPanel from "../components/JobListPanel";
 import {
   createEmployerJob,
   deleteEmployerJob,
   fetchEmployerJobs,
   updateEmployerJob,
 } from "../lib/jobsApi";
+import ApplicantsModal from "../components/ApplicantsModal";
 import { routePaths } from "../routing/routes";
 import "../styles/EmployerPage.css";
 
@@ -145,6 +148,7 @@ function EmployerListingCard({
   isDeleting,
   onEdit,
   onDelete,
+  onViewApplicants,
 }) {
   return (
     <article className="employer-job-card">
@@ -178,6 +182,14 @@ function EmployerListingCard({
         </button>
         <button
           type="button"
+          className="employer-job-action employer-job-action-secondary"
+          onClick={() => onViewApplicants(job)}
+          disabled={isDeleting}
+        >
+          Applicants
+        </button>
+        <button
+          type="button"
           className="employer-job-action employer-job-action-muted"
           onClick={() => onDelete(job)}
           disabled={isDeleting}
@@ -196,10 +208,12 @@ function EmployerPage() {
   const [editingJobId, setEditingJobId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState("");
+  const [viewingApplicantsJob, setViewingApplicantsJob] = useState(null);
   const [dashboardStatus, setDashboardStatus] = useState({
     type: "",
     message: "",
   });
+
   const {
     query,
     result,
@@ -216,6 +230,8 @@ function EmployerPage() {
     normalizeResult: normalizeJobsResult,
     fallbackMessage: "Could not load employer jobs.",
   });
+
+  useJobStream(reload);
 
   const commitSearch = useCallback((search) => {
     updateQuery({ search, page: 1 });
@@ -367,6 +383,7 @@ function EmployerPage() {
       setPendingDeleteId("");
     }
   }
+  const [totalJobs, setTotalJobs] = useState(0);
 
   return (
     <main className="landing-page">
@@ -398,12 +415,12 @@ function EmployerPage() {
           </p>
           <div className="employer-summary-stats">
             <div>
-              <strong>{result.pagination.total}</strong>
+              <strong>{totalJobs}</strong>
               <span>jobs in the current scope</span>
             </div>
             <div>
-              <strong>{isEditingJob ? "Editing" : "Creating"}</strong>
-              <span>{isEditingJob ? "current selected listing" : "next live listing"}</span>
+              <strong>Managing</strong>
+              <span>live listings</span>
             </div>
           </div>
         </aside>
@@ -603,6 +620,7 @@ function EmployerPage() {
                     isDeleting={pendingDeleteId === job.id}
                     onEdit={handleEditJob}
                     onDelete={handleDeleteJob}
+                    onViewApplicants={setViewingApplicantsJob}
                   />
                 ))}
               </div>
@@ -629,6 +647,13 @@ function EmployerPage() {
           </div>
         </div>
       </section>
+
+      {viewingApplicantsJob && (
+        <ApplicantsModal
+          job={viewingApplicantsJob}
+          onClose={() => setViewingApplicantsJob(null)}
+        />
+      )}
     </main>
   );
 }

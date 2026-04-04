@@ -1,6 +1,14 @@
 import { Link } from "react-router-dom";
 import AdminUsersPanel from "../components/admin/AdminUsersPanel";
+import JobListPanel from "../components/JobListPanel";
 import { routePaths, withHash } from "../routing/routes";
+import {
+  updateAdminJob,
+  deleteAdminJob,
+} from "../lib/adminApi";
+import {
+  fetchAdminJobs
+} from "../lib/jobsApi";
 import "../styles/AdminPage.css";
 
 function AdminPage() {
@@ -25,9 +33,9 @@ function AdminPage() {
             </Link>
             <Link
               className="hero-button hero-button-secondary"
-              to={withHash(routePaths.admin, "admin-overview")}
+              to={withHash(routePaths.admin, "admin-jobs")}
             >
-              Current Scope
+              Manage Jobs
             </Link>
           </div>
         </div>
@@ -46,22 +54,25 @@ function AdminPage() {
         </aside>
       </section>
 
-      <section className="admin-overview-grid" id="admin-overview">
-        <article className="admin-stat-card">
-          <strong>User access</strong>
-          <p>Search accounts and change access for non-admin users.</p>
-        </article>
-        <article className="admin-stat-card">
-          <strong>Profile review</strong>
-          <p>Open seeker and employer profiles from the user table.</p>
-        </article>
-        <article className="admin-stat-card">
-          <strong>No fake metrics</strong>
-          <p>Operational counts stay hidden until real reporting exists.</p>
-        </article>
-      </section>
-
       <AdminUsersPanel />
+
+      <section className="admin-jobs-section" id="admin-jobs">
+        <div className="admin-jobs-header">
+          <p className="admin-panel-label">Job Management</p>
+          <h2>Manage all job listings</h2>
+          <p>
+            Review and manage all job listings across the platform. Edit job
+            details or remove listings as needed.
+          </p>
+        </div>
+        <JobListPanel
+          loadResource={fetchAdminJobs}
+          fallbackMessage="Could not load jobs."
+          onUpdate={updateAdminJob}
+          onDelete={deleteAdminJob}
+          canCreate={false}
+        />
+      </section>
     </main>
   );
 }

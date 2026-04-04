@@ -34,6 +34,16 @@ export async function listDistinctJobFieldValues(fieldName) {
     }).exec();
 }
 
+export async function addApplicantToJob(jobId, userID) {
+    const job = await Job.findById(jobId).exec();
+    if (!job) {
+        throw new Error("Job not found");
+    }
+    job.applicantIds.push(userID);
+    return job.save();
+}
+
+
 export async function createJob(jobData) {
     return Job.create(jobData);
 }

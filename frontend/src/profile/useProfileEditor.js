@@ -30,6 +30,7 @@ export function useProfileEditor({
   const currentUserId = user?.id || "";
   const [rawProfile, setRawProfile] = useState(null);
   const [resolvedUserId, setResolvedUserId] = useState("");
+  const [reloadVersion, setReloadVersion] = useState(0);
   const [draft, setDraft] = useState(() => createDraft(null, user));
   const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState(null);
@@ -40,6 +41,10 @@ export function useProfileEditor({
   const [saveError, setSaveError] = useState("");
   const [saveSuccess, setSaveSuccess] = useState("");
 
+  function reload() {
+    setReloadVersion((v) => v + 1);
+  }
+
   useEffect(() => {
     if (!currentUserId) {
       return;
@@ -48,6 +53,7 @@ export function useProfileEditor({
     let cancelled = false;
 
     async function syncProfile() {
+
       const result = await loadProfile();
 
       if (cancelled) {
@@ -72,7 +78,7 @@ export function useProfileEditor({
     return () => {
       cancelled = true;
     };
-  }, [createDraft, currentUserId, loadErrorMessage, loadProfile, user]);
+  }, [createDraft, currentUserId, loadErrorMessage, loadProfile, reloadVersion, user]);
 
   const profile = currentUserId && resolvedUserId === currentUserId ? rawProfile : null;
   const resolvedError = currentUserId && resolvedUserId === currentUserId ? error : null;
@@ -266,5 +272,6 @@ export function useProfileEditor({
     saveDraft,
     uploadProfileImage,
     removeProfileImage,
+    reload,
   };
 }
