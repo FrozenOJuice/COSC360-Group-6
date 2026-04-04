@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { fetchJobById, fetchJobDiscussion, postJobDiscussionComment, updateJobDiscussionComment, deleteJobDiscussionComment } from "../lib/jobsApi";
+import { useDiscussionStream } from "../jobs/useDiscussionStream";
 import { useAuth } from "../auth/useAuth";
 import { routePaths } from "../routing/routes";
 import Comment from "../components/Comment";
@@ -106,6 +107,8 @@ function JobDetailsPage({ jobId: jobIdProp }) {
       isActive = false;
     };
   }, [jobId]);
+
+  useDiscussionStream(jobId, setDiscussion);
 
   const salaryLabel = formatSalary(job?.salary, job?.currency);
   const subtitle = [job?.category, job?.country].filter(Boolean).join(" • ");

@@ -5,6 +5,7 @@ import {
     removeSelfEmployerProfileLogo,
     getSelfEmployerProfile,
     getSelfEmployerProfileLogo,
+    streamSelfEmployerProfile,
     uploadSelfEmployerProfileLogo,
     updateSelfEmployerProfile,
 } from "../controllers/employerProfileController.js";
@@ -18,6 +19,7 @@ import { profileUserParamsSchema, updateEmployerProfileSchema } from "../validat
 
 const router = express.Router();
 
+router.get("/me/stream", requireAuth, requireRole("employer"), streamSelfEmployerProfile);
 router.get("/me/logo", requireAuth, requireRole("employer"), getSelfEmployerProfileLogo);
 router.get("/me", requireAuth, requireRole("employer"), getSelfEmployerProfile);
 router.put(

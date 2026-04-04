@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AuthContext } from "./authContext";
-import { requestJson, requestSessionRefreshJson } from "../lib/api";
+import { API_BASE_URL, requestJson, requestSessionRefreshJson } from "../lib/api";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -137,6 +137,28 @@ export function AuthProvider({ children }) {
 
     void hydrateInitialSession();
   }, []);
+
+  const logoutRef = useRef(logout);
+  logoutRef.current = logout;
+
+  useEffect(() => {
+    if (!user) return;
+
+    const es = new EventSource(`${API_BASE_URL}/api/auth/stream`, {
+      withCredentials: true,
+    });
+
+    es.addEventListener("account-status", (event) => {
+      const data = JSON.parse(event.data);
+      if (data.status === "disabled") {
+        logoutRef.current();
+      }
+    });
+
+    return () => {
+      es.close();
+    };
+  }, [user?.id]);
 
   return (
     <AuthContext.Provider

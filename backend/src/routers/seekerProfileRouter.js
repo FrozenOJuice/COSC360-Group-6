@@ -8,6 +8,7 @@ import {
     getSelfSeekerResumeFile,
     removeSelfSeekerProfilePicture,
     removeSelfSeekerResume,
+    streamSelfSeekerProfile,
     updateSelfSeekerProfile,
     uploadSelfSeekerProfilePicture,
     uploadSelfSeekerResume,
@@ -23,6 +24,7 @@ import { profileUserParamsSchema, updateSeekerProfileSchema } from "../validator
 
 const router = express.Router();
 
+router.get("/me/stream", requireAuth, requireRole("seeker"), streamSelfSeekerProfile);
 router.get("/me/picture", requireAuth, requireRole("seeker"), getSelfSeekerProfilePicture);
 router.get("/me/resume", requireAuth, requireRole("seeker"), getSelfSeekerResumeFile);
 router.get("/me", requireAuth, requireRole("seeker"), getSelfSeekerProfile);

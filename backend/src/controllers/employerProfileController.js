@@ -20,6 +20,7 @@ const employerProfileController = createProfileController({
 });
 
 export const {
+    streamSelfProfile: streamSelfEmployerProfile,
     getSelfProfile: getSelfEmployerProfile,
     updateSelfProfile: updateSelfEmployerProfile,
     uploadSelfProfileMedia: uploadSelfEmployerProfileLogo,
