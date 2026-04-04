@@ -18,6 +18,16 @@ export async function fetchAdminUserById(userId) {
   return mapResultData(result, (data) => data?.user ?? null);
 }
 
+export async function fetchAdminJobApplicants(jobId) {
+  const result = await requestJson(`/api/admin/jobs/${jobId}/applicants`, {
+    method: "GET",
+  }, {
+    fallbackMessage: "Could not load applicants.",
+  });
+
+  return mapResultData(result, (data) => data?.applicants ?? []);
+}
+
 export async function updateAdminUserStatus(userId, status) {
   const result = await requestJson(`/api/admin/users/${userId}/status`, {
     method: "PATCH",
