@@ -20,7 +20,7 @@ for (const key of required) {
 }
 
 export const config = Object.freeze({
-    PORT: process.env.PORT,
+    PORT: process.env.PORT || "3000",
     NODE_ENV: process.env.NODE_ENV,
     MONGO_URI: process.env.MONGO_URI,
     BCRYPT_SALT_ROUNDS: parseInt(process.env.BCRYPT_SALT_ROUNDS, 10),

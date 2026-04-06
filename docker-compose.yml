@@ -16,6 +16,9 @@ services:
     build: ./frontend
     ports:
       - "4000:4000"
+    environment:
+      - VITE_PORT=4000
+      - VITE_API_PROXY_TARGET=http://backend:4000
     depends_on:
       - backend
 
