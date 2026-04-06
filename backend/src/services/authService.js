@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { toUserDto } from "../dto/userDto.js";
 import { clearRefreshTokenHash, createUser, findByEmail, findByUsername, findById, setRefreshTokenHash, } from "../repositories/userRepository.js";
 import { hashRefreshToken, signAccessToken, signRefreshToken, verifyRefreshToken, } from "./sessionService.js";
@@ -27,12 +26,12 @@ export async function registerUser(payload) {
         throw appError("EMAIL_ALREADY_IN_USE", "Email is already registered");
     }
 
-    const existingUsername = await findByUsername(username, { session });
+    const existingUsername = await findByUsername(username);
     if (existingUsername) {
         throw appError("USERNAME_ALREADY_IN_USE", "Username is already taken");
     }
 
-    const user = await createUser({ name, email, password, role });
+    const user = await createUser({ name, username, email, password, role });
 
     if (user.role === "seeker") {
         await createInitialSeekerProfile(user._id);
