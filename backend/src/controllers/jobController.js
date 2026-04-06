@@ -4,11 +4,14 @@ import {
     deleteEmployerJob,
     getBoardJob,
     getBoardJobOptions,
+    getJobApplicants as getJobApplicantsService,
     listBoardJobs,
     listEmployerJobs,
     listAdminJobs,
     updateEmployerJob,
+    addJobApplication
 } from "../services/jobService.js";
+import { addClient, removeClient } from "../utils/jobEventBus.js";
 import { sendSuccess } from "../utils/apiResponse.js";
 
 export const getJobs = asyncHandler(async (req, res) => {
@@ -26,6 +29,11 @@ export const getJobOptions = asyncHandler(async (req, res) => {
     return sendSuccess(res, result);
 });
 
+export const getJobApplicants = asyncHandler(async (req, res) => {
+  const result = await getJobApplicantsService(req.params?.id, req.auth?.userId);
+  return sendSuccess(res, result);
+});
+
 export const getEmployerJobs = asyncHandler(async (req, res) => {
     const result = await listEmployerJobs(req.auth?.userId, req.validatedQuery ?? req.query);
     return sendSuccess(res, result);
@@ -41,6 +49,11 @@ export const createJob = asyncHandler(async (req, res) => {
     return sendSuccess(res, result, 201);
 });
 
+export const addApplication = asyncHandler(async (req, res) => {
+    const result = await addJobApplication(req.params?.id, req.params?.userID);
+    return sendSuccess(res, result);
+});
+
 export const updateJob = asyncHandler(async (req, res) => {
     const result = await updateEmployerJob(req.auth?.userId, req.auth?.role, req.params?.id, req.body);
     return sendSuccess(res, result);
@@ -50,3 +63,22 @@ export const deleteJob = asyncHandler(async (req, res) => {
     const result = await deleteEmployerJob(req.auth?.userId, req.auth?.role, req.params?.id);
     return sendSuccess(res, result);
 });
+
+export function streamJobs(req, res) {
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+
+    addClient(res);
+    res.write("event: connected\ndata: {}\n\n");
+
+    const heartbeat = setInterval(() => {
+        res.write(":heartbeat\n\n");
+    }, 30000);
+
+    req.on("close", () => {
+        clearInterval(heartbeat);
+        removeClient(res);
+    });
+}

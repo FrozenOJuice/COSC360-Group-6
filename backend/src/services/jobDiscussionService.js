@@ -1,4 +1,5 @@
 import { appError } from "../utils/appError.js";
+import { broadcastDiscussion } from "../utils/discussionEventBus.js";
 import { findJobById } from "../repositories/jobRepository.js";
 import {
     findDiscussionByJobId,
@@ -63,12 +64,12 @@ export async function addJobComment(jobId, userId, text) {
 
     await discussion.populate({ path: "comments.userId", select: "name" });
 
-    return {
-        discussion: {
-            jobId: String(discussion.jobId),
-            comments: mapComments(discussion.comments),
-        },
+    const result = {
+        jobId: String(discussion.jobId),
+        comments: mapComments(discussion.comments),
     };
+    broadcastDiscussion(jobId, result);
+    return { discussion: result };
 }
 
 export async function updateJobComment(jobId, commentId, userId, role, text) {
@@ -104,12 +105,12 @@ export async function updateJobComment(jobId, commentId, userId, role, text) {
 
     await discussion.populate({ path: "comments.userId", select: "name" });
 
-    return {
-        discussion: {
-            jobId: String(discussion.jobId),
-            comments: mapComments(discussion.comments),
-        },
+    const result = {
+        jobId: String(discussion.jobId),
+        comments: mapComments(discussion.comments),
     };
+    broadcastDiscussion(jobId, result);
+    return { discussion: result };
 }
 
 export async function deleteJobComment(jobId, commentId, userId, role) {
@@ -148,10 +149,10 @@ export async function deleteJobComment(jobId, commentId, userId, role) {
 
     await discussion.populate({ path: "comments.userId", select: "name" });
 
-    return {
-        discussion: {
-            jobId: String(discussion.jobId),
-            comments: mapComments(discussion.comments),
-        },
+    const result = {
+        jobId: String(discussion.jobId),
+        comments: mapComments(discussion.comments),
     };
+    broadcastDiscussion(jobId, result);
+    return { discussion: result };
 }

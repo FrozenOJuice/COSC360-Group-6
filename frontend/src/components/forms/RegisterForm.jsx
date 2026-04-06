@@ -7,6 +7,7 @@ function RegisterForm() {
   const { register } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -86,6 +87,17 @@ function RegisterForm() {
       errors.push({ field: "Name", message: "Name must be at most 60 characters" });
     }
 
+    const usernameTrimmed = formData.username.trim();
+    if (!usernameTrimmed) {
+      errors.push({ field: "Username", message: "Username is required" });
+    } else if (usernameTrimmed.length < 3) {
+      errors.push({ field: "Username", message: "Username must be at least 3 characters" });
+    } else if (usernameTrimmed.length > 30) {
+      errors.push({ field: "Username", message: "Username must be at most 30 characters" });
+    } else if (!/^[a-zA-Z0-9_]+$/.test(usernameTrimmed)) {
+      errors.push({ field: "Username", message: "Username may only contain letters, numbers, and underscores" });
+    }
+
     const emailTrimmed = formData.email.trim().toLowerCase();
     if (!emailTrimmed) {
       errors.push({ field: "Email", message: "Email is required" });
@@ -137,6 +149,7 @@ function RegisterForm() {
 
     const registerPayload = {
       name: formData.name,
+      username: formData.username,
       email: formData.email,
       password: formData.password,
       confirmPassword: formData.confirmPassword,
@@ -147,10 +160,17 @@ function RegisterForm() {
       const { data, ok } = await register(registerPayload);
 
       if (!ok) {
+        const fieldErrors = [];
+        if (data.code === "EMAIL_ALREADY_IN_USE") {
+          fieldErrors.push({ field: "Email", message: "Email is already registered" });
+        } else if (data.code === "USERNAME_ALREADY_IN_USE") {
+          fieldErrors.push({ field: "Username", message: "Username is already taken" });
+        }
+
         setStatus({
           type: "error",
-          message: data.message || "Could not create account",
-          details: Array.isArray(data.details) ? data.details : [],
+          message: fieldErrors.length > 0 ? "Please fix the highlighted errors." : (data.message || "Could not create account"),
+          details: fieldErrors.length > 0 ? fieldErrors : (Array.isArray(data.details) ? data.details : []),
         });
         return;
       }
@@ -180,6 +200,7 @@ function RegisterForm() {
       });
       setFormData({
         name: "",
+        username: "",
         email: "",
         password: "",
         confirmPassword: "",
@@ -222,6 +243,18 @@ function RegisterForm() {
           onChange={handleChange}
           placeholder={namePlaceholder}
           autoComplete={nameAutoComplete}
+        />
+      </label>
+
+      <label className="auth-field">
+        <span>Username</span>
+        <input
+          name="username"
+          type="text"
+          value={formData.username}
+          onChange={handleChange}
+          placeholder="jane_smith"
+          autoComplete="username"
         />
       </label>
 

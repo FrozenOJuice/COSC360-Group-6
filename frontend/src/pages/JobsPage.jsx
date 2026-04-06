@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import JobCard from "../components/JobCard";
 import { useDebouncedQueryInput } from "../hooks/useDebouncedQueryInput";
 import { usePaginatedResource } from "../hooks/usePaginatedResource";
+import { useJobStream } from "../jobs/useJobStream";
 import { fetchJobOptions, fetchJobs } from "../lib/jobsApi";
 import "../styles/JobsPage.css";
 
@@ -126,6 +127,7 @@ function JobsPage() {
     clearError,
     updateQuery,
     replaceQuery,
+    reload,
   } = usePaginatedResource({
     initialQuery: INITIAL_QUERY,
     initialResult: EMPTY_RESULT,
@@ -133,6 +135,8 @@ function JobsPage() {
     normalizeResult: normalizeJobsResult,
     fallbackMessage: "Could not load jobs.",
   });
+
+  useJobStream(reload);
 
   const commitSearch = useCallback((search) => {
     updateQuery({ search, page: 1 });
@@ -164,7 +168,7 @@ function JobsPage() {
             currencies: Array.isArray(response.data.currencies) ? response.data.currencies : [],
         });
       } catch {
-        // Keep filters usable even if the option lookup fails.
+        //
       }
     }
 

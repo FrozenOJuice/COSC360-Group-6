@@ -58,6 +58,30 @@ export async function postJobDiscussionComment(jobId, comment) {
   return mapResultData(result, (data) => data?.discussion ?? { jobId, comments: [] });
 }
 
+export async function fetchJobApplicants(jobId) {
+  const result = await requestJson(`/api/jobs/${jobId}/applicants`, {
+    method: "GET",
+  }, {
+    fallbackMessage: "Could not load applicants.",
+  });
+  return mapResultData(result, (data) => data?.applicants ?? []);
+}
+
+export async function postApplicantToJob(jobId, userID) {
+  const result = await requestJson(`/api/jobs/${jobId}/application/${userID}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ userID }),
+  }, {
+    fallbackMessage: "Could not apply to job.",
+  });
+
+  return mapResultData(result, (data) => data?.application ?? null);
+}
+
+
 export async function updateJobDiscussionComment(jobId, commentId, comment) {
   const result = await requestJson(`/api/jobs/${jobId}/discussion/${commentId}`, {
     method: "PATCH",

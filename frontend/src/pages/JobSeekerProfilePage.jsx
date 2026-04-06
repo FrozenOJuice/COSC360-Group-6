@@ -18,6 +18,7 @@ import {
 import ProfileMediaPanel from "../profile/ProfileMediaPanel";
 import ProfileVisibilityCard from "../profile/ProfileVisibilityCard";
 import { useProfileEditor } from "../profile/useProfileEditor";
+import { useProfileStream } from "../profile/useProfileStream";
 import "../styles/ProfilePage.css";
 
 function createEditableList(values) {
@@ -69,6 +70,7 @@ function JobSeekerProfilePage() {
     saveDraft,
     uploadProfileImage,
     removeProfileImage,
+    reload,
   } = useProfileEditor({
     user,
     createDraft: createSeekerDraft,
@@ -93,6 +95,8 @@ function JobSeekerProfilePage() {
     removeSuccessMessage: "Profile picture removed.",
     imageFieldName: "profilePicture",
   });
+
+  useProfileStream("/api/seeker-profile/me/stream", reload);
 
   function handleListItemChange(fieldName, index, value) {
     setDraft((currentDraft) => ({
@@ -229,6 +233,7 @@ function JobSeekerProfilePage() {
           />
           <div className="profile-side-details">
             <h2>Personal Information</h2>
+            <p><strong>Username:</strong> {user?.username || "N/A"}</p>
             <p><strong>Full Name:</strong> {user?.name || "N/A"}</p>
             <p><strong>Email:</strong> {user?.email || "N/A"}</p>
             {isEditing ? (

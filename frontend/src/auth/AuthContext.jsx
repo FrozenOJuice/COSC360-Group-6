@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AuthContext } from "./authContext";
-import { requestJson, requestSessionRefreshJson } from "../lib/api";
+import { API_BASE_URL, requestJson, requestSessionRefreshJson } from "../lib/api";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -52,7 +52,6 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function login(credentials) {
-    const requestId = beginRequest();
     const result = await requestJson("/api/auth/login", {
       method: "POST",
       headers: {
@@ -63,19 +62,14 @@ export function AuthProvider({ children }) {
       fallbackMessage: "Could not log in.",
     });
 
-    if (result.ok && canCommit(requestId)) {
+    if (result.ok && isMountedRef.current) {
       setUser(result.data.user ?? null);
-    }
-
-    if (canCommit(requestId)) {
-      setLoading(false);
     }
 
     return result;
   }
 
   async function register(credentials) {
-    const requestId = beginRequest();
     const result = await requestJson("/api/auth/register", {
       method: "POST",
       headers: {
@@ -86,12 +80,8 @@ export function AuthProvider({ children }) {
       fallbackMessage: "Could not create account.",
     });
 
-    if (result.ok && canCommit(requestId)) {
+    if (result.ok && isMountedRef.current) {
       setUser(result.data.user ?? null);
-    }
-
-    if (canCommit(requestId)) {
-      setLoading(false);
     }
 
     return result;
@@ -147,6 +137,28 @@ export function AuthProvider({ children }) {
 
     void hydrateInitialSession();
   }, []);
+
+  const logoutRef = useRef(logout);
+  logoutRef.current = logout;
+
+  useEffect(() => {
+    if (!user) return;
+
+    const es = new EventSource(`${API_BASE_URL}/api/auth/stream`, {
+      withCredentials: true,
+    });
+
+    es.addEventListener("account-status", (event) => {
+      const data = JSON.parse(event.data);
+      if (data.status === "disabled") {
+        logoutRef.current();
+      }
+    });
+
+    return () => {
+      es.close();
+    };
+  }, [user?.id]);
 
   return (
     <AuthContext.Provider

@@ -15,6 +15,7 @@ const STATUS_BY_CODE = Object.freeze({
     NOT_FOUND: 404,
     USER_NOT_FOUND: 404,
     EMAIL_ALREADY_IN_USE: 409,
+    USERNAME_ALREADY_IN_USE: 409,
     DUPLICATE_KEY: 409,
 });
 
@@ -50,6 +51,9 @@ export function errorHandler(err, req, res, next) {
         if (err.keyPattern && err.keyPattern.email) {
             err.code = "EMAIL_ALREADY_IN_USE";
             err.message = "Email is already registered";
+        } else if (err.keyPattern && err.keyPattern.username) {
+            err.code = "USERNAME_ALREADY_IN_USE";
+            err.message = "Username is already taken";
         } else {
             err.code = "DUPLICATE_KEY";
             err.message = "Resource already exists";

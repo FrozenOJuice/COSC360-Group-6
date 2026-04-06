@@ -20,6 +20,7 @@ export function toJobDto(job, options = {}) {
         currency: job.currency,
         createdAt: normalizeDate(job.createdAt),
         updatedAt: normalizeDate(job.updatedAt),
+        applicantIds: (job.applicantIds ?? []).map(String),
     };
 
     if (options.includeEmployerUserId) {
