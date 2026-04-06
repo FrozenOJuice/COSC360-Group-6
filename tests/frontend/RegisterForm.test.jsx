@@ -94,6 +94,7 @@ describe('RegisterForm — client-side validation', () => {
     renderRegisterForm();
 
     await userEvent.type(screen.getByLabelText(/full name/i), 'J');
+    await userEvent.type(screen.getByLabelText(/username/i), 'janesmith');
     await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'j@example.com');
     await userEvent.type(screen.getByLabelText(/^password$/i), 'SecurePass1!');
     await userEvent.type(screen.getByLabelText(/confirm password/i), 'SecurePass1!');
@@ -108,6 +109,7 @@ describe('RegisterForm — client-side validation', () => {
     renderRegisterForm();
 
     await userEvent.type(screen.getByLabelText(/full name/i), 'Jane Smith');
+    await userEvent.type(screen.getByLabelText(/username/i), 'janesmith');
     await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'jane@example.com');
     await userEvent.type(screen.getByLabelText(/^password$/i), 'SecurePass1!');
     await userEvent.type(screen.getByLabelText(/confirm password/i), 'DifferentPass1!');
@@ -122,6 +124,7 @@ describe('RegisterForm — client-side validation', () => {
     renderRegisterForm();
 
     await userEvent.type(screen.getByLabelText(/full name/i), 'Jane Smith');
+    await userEvent.type(screen.getByLabelText(/username/i), 'janesmith');
     await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'jane@example.com');
     await userEvent.type(screen.getByLabelText(/^password$/i), 'weakpass');
     await userEvent.type(screen.getByLabelText(/confirm password/i), 'weakpass');
@@ -175,6 +178,7 @@ describe('RegisterForm — successful registration', () => {
     renderRegisterForm();
 
     await userEvent.type(screen.getByLabelText(/full name/i), 'Jane Smith');
+    await userEvent.type(screen.getByLabelText(/username/i), 'janesmith');
     await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'jane@example.com');
     await userEvent.type(screen.getByLabelText(/^password$/i), 'SecurePass1!');
     await userEvent.type(screen.getByLabelText(/confirm password/i), 'SecurePass1!');
@@ -197,6 +201,7 @@ describe('RegisterForm — server errors', () => {
     renderRegisterForm();
 
     await userEvent.type(screen.getByLabelText(/full name/i), 'Jane Smith');
+    await userEvent.type(screen.getByLabelText(/username/i), 'janesmith');
     await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'jane@example.com');
     await userEvent.type(screen.getByLabelText(/^password$/i), 'SecurePass1!');
     await userEvent.type(screen.getByLabelText(/confirm password/i), 'SecurePass1!');
