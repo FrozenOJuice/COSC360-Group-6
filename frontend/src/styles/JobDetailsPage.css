@@ -24,12 +24,13 @@
   font-weight: bold;
   color:white;
   border-radius: 15px;
+  border: 1px solid #3163d4;
   background-color: #3163d4;
   padding: 10px 14px;
 }
 .job-details-apply:hover {
   background-color: #274ea1;
-
+  cursor: pointer;
 }
 
 .job-details-card h1,
@@ -139,11 +140,15 @@
 .comment-actions button {
   background-color: transparent;
   border: 1px solid #3163d4;
-  color: #3163d4;
+  background-color: #3163d4;
   border-radius: 6px;
   padding: 4px 8px;
   cursor: pointer;
   font-size: 0.75rem;
+}
+
+.comment-actions button:hover {
+  background-color: #274ea1;
 }
 
 .comment-actions button:disabled {
@@ -185,6 +190,11 @@
   cursor: pointer;
 }
 
+.discussion-add-comment button:hover,
+.discussion-comment-meta button:hover {
+  background-color: #274ea1;
+}
+
 .discussion-comment-meta button {
   padding: 0px 14px 0px 14px;
   height: 75%;
@@ -192,6 +202,10 @@
 
 .comment-actions .delete-button {
   background-color: #ca2b2b;
+}
+
+.comment-actions .delete-button:hover {
+  background-color: #ac2626;
 }
 
 .discussion-add-comment button:disabled {

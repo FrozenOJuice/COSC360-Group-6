@@ -187,7 +187,6 @@ export async function getBoardJob(jobId) {
 }
 
 export async function addJobApplication(jobId, userID) {
-    
     if (!jobId || !userID) {
         throw appError("INVALID_REQUEST", "Job id or userID is required");
     }
@@ -195,7 +194,7 @@ export async function addJobApplication(jobId, userID) {
     if (!job) {
         throw appError("NOT_FOUND", "Job not found");
     }
-    const alreadyApplied = job.applicantIds.some((applicantId) => String(applicantId) === String(userID));
+    const alreadyApplied = job.applicantIds?.some((applicantId) => String(applicantId) === String(userID));
     if (alreadyApplied) {
         throw appError("INVALID_REQUEST", "User has already applied to this job");
     }
