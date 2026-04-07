@@ -60,6 +60,10 @@ function AppRoutes({ authLoading, authUser }) {
           path={routePaths.employerProfile}
           element={<EmployerProfilePage />}
         />
+        <Route
+          path={routePaths.jobSeekerProfileById}
+          element={<JobSeekerProfilePage />}
+        />
       </Route>
 
       <Route

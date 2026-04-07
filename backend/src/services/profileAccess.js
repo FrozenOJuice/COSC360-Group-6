@@ -14,7 +14,12 @@ export function assertCanReadProfile(profile, viewer) {
     const isAdmin = viewer?.role === "admin";
     const isPublic = getProfileVisibility(profile) === "public";
 
-    if (!isOwner && !isAdmin && !isPublic) {
-        throw appError("NOT_FOUND", "Profile not found");
+    
+    if(!isPublic) {
+        if (!isOwner && !isAdmin) {
+            throw appError("NOT_FOUND", "Profile not found");
+        }
+        
+        throw appError("NOT_PUBLIC", "This profile is not public");
     }
 }

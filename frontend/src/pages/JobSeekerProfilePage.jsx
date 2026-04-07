@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useParams } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import { API_BASE_URL } from "../lib/api";
 import {
   getCurrentSeekerProfile,
+  getSeekerProfileByUserId,
   removeCurrentSeekerProfilePicture,
   removeCurrentSeekerResume,
   uploadCurrentSeekerProfilePicture,
@@ -46,9 +48,19 @@ function createSeekerDraft(profile) {
 
 function JobSeekerProfilePage() {
   const { user } = useAuth();
+  const { userId } = useParams();
+  const isViewingOtherProfile = !!userId;
+  
   const [isUploadingResume, setIsUploadingResume] = useState(false);
   const [isRemovingResume, setIsRemovingResume] = useState(false);
   const [resumeError, setResumeError] = useState("");
+
+  const loadProfile = useCallback(() => {
+    return isViewingOtherProfile
+      ? getSeekerProfileByUserId(userId)
+      : getCurrentSeekerProfile();
+  }, [isViewingOtherProfile, userId]);
+
   const {
     profile,
     draft,
@@ -74,7 +86,7 @@ function JobSeekerProfilePage() {
   } = useProfileEditor({
     user,
     createDraft: createSeekerDraft,
-    loadProfile: getCurrentSeekerProfile,
+    loadProfile,
     loadErrorMessage: "Failed to load profile",
     saveProfile: updateCurrentSeekerProfile,
     buildSavePayload: (nextDraft) => ({
@@ -96,7 +108,10 @@ function JobSeekerProfilePage() {
     imageFieldName: "profilePicture",
   });
 
-  useProfileStream("/api/seeker-profile/me/stream", reload);
+  if (!isViewingOtherProfile) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useProfileStream("/api/seeker-profile/me/stream", reload);
+  }
 
   function handleListItemChange(fieldName, index, value) {
     setDraft((currentDraft) => ({
@@ -197,46 +212,54 @@ function JobSeekerProfilePage() {
 
   return (
     <ProfileEditorFrame
-      title="Seeker Profile"
-      isEditing={isEditing}
+      title={isViewingOtherProfile ? "Job Seeker Profile" : "Seeker Profile"}
+      isEditing={!isViewingOtherProfile && isEditing}
       isSaving={isSaving}
-      onEdit={startEditing}
-      onCancel={cancelEditing}
-      onSubmit={handleSubmit}
+      onEdit={!isViewingOtherProfile ? startEditing : null}
+      onCancel={!isViewingOtherProfile ? cancelEditing : null}
+      onSubmit={!isViewingOtherProfile ? handleSubmit : null}
       saveError={saveError}
       saveSuccess={saveSuccess}
       sideContent={(
         <div className="profile-side-card">
           <ProfileMediaPanel
-            imageSrc={isEditing ? draft.profilePicture : profileData.profilePicture}
+            imageSrc={!isViewingOtherProfile && isEditing ? draft.profilePicture : profileData.profilePicture}
             imageAlt="Profile Picture"
-            isEditing={isEditing}
+            isEditing={!isViewingOtherProfile && isEditing}
             inputLabel="Profile Picture"
             inputClassName={getControlClass("profile-file-input", "profilePicture")}
             accept="image/jpeg,image/png,image/gif,image/webp"
-            onFileChange={handleProfilePictureUpload}
+            onFileChange={!isViewingOtherProfile ? handleProfilePictureUpload : null}
             isUploading={isUploadingImage}
             isRemoving={isRemovingImage}
             hasCustomImage={hasCustomProfilePicture}
-            onRemove={handleRemoveProfilePicture}
+            onRemove={!isViewingOtherProfile ? handleRemoveProfilePicture : null}
             removeLabel="Remove Picture"
             fieldError={fieldErrors.profilePicture}
           />
-          <ProfileVisibilityCard
-            value={visibilityValue}
-            isEditing={isEditing}
-            selectClassName={getControlClass("profile-select", "visibility")}
-            onChange={handleDraftChange}
-            error={fieldErrors.visibility}
-            publicDescription="Anyone can view your seeker profile."
-            privateDescription="Only you and admins can view your seeker profile."
-          />
+          {!isViewingOtherProfile && (
+            <ProfileVisibilityCard
+              value={visibilityValue}
+              isEditing={isEditing}
+              selectClassName={getControlClass("profile-select", "visibility")}
+              onChange={handleDraftChange}
+              error={fieldErrors.visibility}
+              publicDescription="Anyone can view your seeker profile."
+              privateDescription="Only you and admins can view your seeker profile."
+            />
+          )}
           <div className="profile-side-details">
             <h2>Personal Information</h2>
-            <p><strong>Username:</strong> {user?.username || "N/A"}</p>
-            <p><strong>Full Name:</strong> {user?.name || "N/A"}</p>
-            <p><strong>Email:</strong> {user?.email || "N/A"}</p>
-            {isEditing ? (
+            {isViewingOtherProfile ? (
+              <p className="profile-info-notice">View this user's seeker profile details above.</p>
+            ) : (
+              <>
+                <p><strong>Username:</strong> {user?.username || "N/A"}</p>
+                <p><strong>Full Name:</strong> {user?.name || "N/A"}</p>
+                <p><strong>Email:</strong> {user?.email || "N/A"}</p>
+              </>
+            )}
+            {!isViewingOtherProfile && isEditing ? (
               <>
                 <label className="profile-field">
                   <span>Phone Number</span>
@@ -259,7 +282,7 @@ function JobSeekerProfilePage() {
     >
       <ProfileTextAreaSection
         title="Bio"
-        isEditing={isEditing}
+        isEditing={!isViewingOtherProfile && isEditing}
         inputClassName={getControlClass("profile-textarea", "bio")}
         name="bio"
         value={draft.bio}
@@ -271,7 +294,7 @@ function JobSeekerProfilePage() {
       <ProfileArraySection
         title="Job Experience"
         fieldName="jobExperience"
-        isEditing={isEditing}
+        isEditing={!isViewingOtherProfile && isEditing}
         items={draft.jobExperience}
         displayItems={profileData.jobExperience}
         inputClassName={getControlClass("profile-input", "jobExperience")}
@@ -286,7 +309,7 @@ function JobSeekerProfilePage() {
       <ProfileArraySection
         title="Education"
         fieldName="education"
-        isEditing={isEditing}
+        isEditing={!isViewingOtherProfile && isEditing}
         items={draft.education}
         displayItems={profileData.education}
         inputClassName={getControlClass("profile-input", "education")}
@@ -300,7 +323,7 @@ function JobSeekerProfilePage() {
       />
       <ProfileTextInputSection
         title="Current Job Position"
-        isEditing={isEditing}
+        isEditing={!isViewingOtherProfile && isEditing}
         inputClassName={getControlClass("profile-input", "currentPosition")}
         name="currentPosition"
         value={draft.currentPosition}
@@ -310,7 +333,7 @@ function JobSeekerProfilePage() {
       />
       <section className="profile-section">
         <h2>Resume</h2>
-        {isEditing ? (
+        {!isViewingOtherProfile && isEditing ? (
           <div className="profile-field">
             <label className="profile-file-input">
               <span>{isUploadingResume ? "Uploading..." : "Upload PDF"}</span>

@@ -10,6 +10,7 @@ export const routePaths = Object.freeze({
   employerProfile: "/employer/profile",
   jobSeeker: "/job-seeker",
   jobSeekerProfile: "/job-seeker/profile",
+  jobSeekerProfileById: "/job-seeker/profile/:userId",
 });
 
 export function withHash(path, hash) {
@@ -23,6 +24,10 @@ export function withHash(path, hash) {
 
 export function getJobDetailsPath(jobId) {
   return `${routePaths.jobs}/${jobId}`;
+}
+
+export function getJobSeekerProfilePath(userId) {
+  return `/job-seeker/profile/${userId}`;
 }
 
 export function getAdminProfilePath(profileRole, userId) {

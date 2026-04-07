@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchJobApplicants } from "../lib/jobsApi";
+import { getJobSeekerProfilePath } from "../routing/routes";
 
 function ApplicantRow({ applicant }) {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
-  const formattedDate = applicant.createdAt
-    ? new Intl.DateTimeFormat("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }).format(new Date(applicant.createdAt))
-    : "—";
+  function onViewProfile(userId) {
+    navigate(getJobSeekerProfilePath(userId));
+  }
 
   return (
     <li className="applicant-row">
@@ -33,8 +32,13 @@ function ApplicantRow({ applicant }) {
             <dd>{applicant.role || "—"}</dd>
           </div>
           <div>
-            <dt>Member since</dt>
-            <dd>{formattedDate}</dd>
+            <button
+              type="button"
+              className="employer-job-action employer-job-action-secondary"
+              onClick={() => onViewProfile(applicant.id)}
+            >
+              View Profile
+            </button>
           </div>
         </dl>
       )}
