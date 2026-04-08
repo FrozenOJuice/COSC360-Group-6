@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { API_BASE_URL } from "../lib/api";
 
 const JOB_EVENTS = ["job-created", "job-updated", "job-deleted"];
 
@@ -8,7 +7,7 @@ export function useJobStream(onEvent) {
     onEventRef.current = onEvent;
 
     useEffect(() => {
-        const es = new EventSource(`${API_BASE_URL}/api/jobs/stream`, {
+        const es = new EventSource(`/api/jobs/stream`, {
             withCredentials: true,
         });
 

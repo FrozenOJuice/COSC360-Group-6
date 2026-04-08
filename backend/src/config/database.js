@@ -1,10 +1,13 @@
 import mongoose from "mongoose";
 import { config } from "./env.js";
+import { seedDatabaseIfNeeded } from "./seed.js";
 
 export const connectDB = async () => {
     try {
         await mongoose.connect(config.MONGO_URI);
         console.log("Database connected successfully.");
+
+        await seedDatabaseIfNeeded();
     } catch (error) {
         throw new Error(`Failed to connect to database: ${error.message}`);
     }

@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { API_BASE_URL } from "../lib/api";
 
 /**
  * Opens an SSE connection to /api/admin/users/stream and calls onUpdate()
@@ -11,7 +10,7 @@ export function useAdminUsersStream(onUpdate) {
     callbackRef.current = onUpdate;
 
     useEffect(() => {
-        const es = new EventSource(`${API_BASE_URL}/api/admin/users/stream`, {
+        const es = new EventSource(`/api/admin/users/stream`, {
             withCredentials: true,
         });
 

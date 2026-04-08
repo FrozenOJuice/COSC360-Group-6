@@ -18,6 +18,7 @@ jest.mock('../../backend/src/middleware/rateLimit.js', () => ({
 const mockUser = {
   id: 'user-1',
   name: 'Jane Smith',
+  username: 'janesmith',
   email: 'jane@example.com',
   role: 'seeker',
   status: 'active',
@@ -35,6 +36,7 @@ describe('POST /api/auth/register', () => {
 
     const res = await request(app).post('/api/auth/register').send({
       name: 'Jane Smith',
+      username: 'janesmith',
       email: 'jane@example.com',
       password: 'SecurePass1!',
       confirmPassword: 'SecurePass1!',
@@ -55,6 +57,7 @@ describe('POST /api/auth/register', () => {
   it('returns 400 when password is too short', async () => {
     const res = await request(app).post('/api/auth/register').send({
       name: 'Jane Smith',
+      username: 'janesmith',
       email: 'jane@example.com',
       password: 'short',
       confirmPassword: 'short',
@@ -65,6 +68,7 @@ describe('POST /api/auth/register', () => {
   it('returns 400 when passwords do not match', async () => {
     const res = await request(app).post('/api/auth/register').send({
       name: 'Jane Smith',
+      username: 'janesmith',
       email: 'jane@example.com',
       password: 'SecurePass1!',
       confirmPassword: 'DifferentPass1!',
@@ -75,6 +79,7 @@ describe('POST /api/auth/register', () => {
   it('returns 400 with an invalid email format', async () => {
     const res = await request(app).post('/api/auth/register').send({
       name: 'Jane Smith',
+      username: 'janesmith',
       email: 'not-an-email',
       password: 'SecurePass1!',
       confirmPassword: 'SecurePass1!',
@@ -92,6 +97,7 @@ describe('POST /api/auth/register', () => {
 
     const res = await request(app).post('/api/auth/register').send({
       name: 'Jane Smith',
+      username: 'janesmith',
       email: 'jane@example.com',
       password: 'SecurePass1!',
       confirmPassword: 'SecurePass1!',
@@ -112,6 +118,7 @@ describe('POST /api/auth/register', () => {
 
     const res = await request(app).post('/api/auth/register').send({
       name: 'Admin User',
+      username: 'janesmith',
       email: 'admin@example.com',
       password: 'SecurePass1!',
       confirmPassword: 'SecurePass1!',

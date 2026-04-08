@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { API_BASE_URL } from "../lib/api";
 
 export function useDiscussionStream(jobId, onDiscussionUpdate) {
     const callbackRef = useRef(onDiscussionUpdate);
@@ -9,7 +8,7 @@ export function useDiscussionStream(jobId, onDiscussionUpdate) {
         if (!jobId) return;
 
         const es = new EventSource(
-            `${API_BASE_URL}/api/jobs/${jobId}/discussion/stream`,
+            `/api/jobs/${jobId}/discussion/stream`,
             { withCredentials: true }
         );
 

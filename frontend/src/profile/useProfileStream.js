@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { API_BASE_URL } from "../lib/api";
 
 /**
  * Opens an SSE connection to the given streamUrl and calls onUpdate()
@@ -12,7 +11,7 @@ export function useProfileStream(streamUrl, onUpdate) {
     useEffect(() => {
         if (!streamUrl) return;
 
-        const es = new EventSource(`${API_BASE_URL}${streamUrl}`, {
+        const es = new EventSource(streamUrl, {
             withCredentials: true,
         });
 
