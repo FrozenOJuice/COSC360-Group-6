@@ -46,7 +46,7 @@ function ApplicantRow({ applicant }) {
   );
 }
 
-function ApplicantsModal({ job, onClose }) {
+function ApplicantsModal({ job, onClose, fetchApplicants }) {
   const [applicants, setApplicants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -57,7 +57,7 @@ function ApplicantsModal({ job, onClose }) {
     async function load() {
       try {
         setLoading(true);
-        const response = await fetchJobApplicants(job.id);
+        const response = await fetchApplicants(job.id);
         if (!isActive) return;
         if (!response.ok) {
           setError(response.error?.message || "Could not load applicants.");
@@ -74,10 +74,8 @@ function ApplicantsModal({ job, onClose }) {
     }
 
     void load();
-    return () => {
-      isActive = false;
-    };
-  }, [job.id]);
+    return () => { isActive = false; };
+  }, [job.id, fetchApplicants]);
 
   function handleBackdropClick(e) {
     if (e.target === e.currentTarget) onClose();

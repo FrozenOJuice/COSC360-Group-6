@@ -10,6 +10,7 @@ import {
   fetchAdminJobs
 } from "../lib/jobsApi";
 import "../styles/AdminPage.css";
+import { fetchAdminJobApplicants } from "../lib/adminApi";
 
 function AdminPage() {
   return (
@@ -62,6 +63,8 @@ function AdminPage() {
           onUpdate={updateAdminJob}
           onDelete={deleteAdminJob}
           canCreate={false}
+          canViewApplicants={true}
+          fetchApplicants={fetchAdminJobApplicants}
         />
       </section>
     </main>

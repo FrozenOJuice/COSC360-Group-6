@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDebouncedQueryInput } from "../hooks/useDebouncedQueryInput";
 import { usePaginatedResource } from "../hooks/usePaginatedResource";
+import ApplicantsModal from "./ApplicantsModal";
 import "../styles/EmployerPage.css";
 
 const INITIAL_QUERY = Object.freeze({
@@ -128,7 +129,7 @@ function formatTimestamp(value) {
   }).format(timestamp);
 }
 
-function ListingCard({ job, isEditing, isDeleting, onEdit, onDelete }) {
+function ListingCard({ job, isEditing, isDeleting, onEdit, onDelete, canViewApplicants, onViewApplicants }) {
   return (
     <article className="employer-job-card">
       <div className="employer-job-card-header">
@@ -159,6 +160,16 @@ function ListingCard({ job, isEditing, isDeleting, onEdit, onDelete }) {
         >
           {isEditing ? "Editing" : "Edit"}
         </button>
+        {canViewApplicants && (
+          <button
+            type="button"
+            className="employer-job-action employer-job-action-secondary"
+            onClick={() => onViewApplicants(job)}
+            disabled={isDeleting}
+          >
+            Applicants
+          </button>
+        )}
         <button
           type="button"
           className="employer-job-action employer-job-action-muted"
@@ -179,6 +190,8 @@ function JobListPanel({
   onUpdate,
   onDelete,
   canCreate = true,
+  canViewApplicants = false,
+  fetchApplicants = null,
   onTotalCount,
 }) {
   const [formData, setFormData] = useState(INITIAL_FORM);
@@ -188,6 +201,7 @@ function JobListPanel({
   const [pendingDeleteId, setPendingDeleteId] = useState("");
   const [dashboardStatus, setDashboardStatus] = useState({ type: "", message: "" });
   const [error, setError] = useState("");
+  const [viewingApplicantsJob, setViewingApplicantsJob] = useState(null);
 
   const {
     query,
@@ -286,8 +300,8 @@ function JobListPanel({
     try {
       const payload = buildJobPayload(formData);
       const response = editingJobId
-        ? (onUpdate ? await onUpdate(editingJobId, payload) : { ok: false, error: new Error('Update is unavailable') })
-        : (onCreate ? await onCreate(payload) : { ok: false, error: new Error('Create is unavailable') });
+        ? (onUpdate ? await onUpdate(editingJobId, payload) : { ok: false, error: new Error("Update is unavailable") })
+        : (onCreate ? await onCreate(payload) : { ok: false, error: new Error("Create is unavailable") });
 
       if (!response.ok) {
         const nextApiFieldErrors = response.error?.fieldErrors || {};
@@ -350,234 +364,246 @@ function JobListPanel({
   const showEditor = canCreate || editingJobId;
 
   return (
-    <div className={`employer-management-grid${showEditor ? "" : " employer-management-grid-single"}`}>
-      {showEditor && (
-        <form className="employer-job-editor" onSubmit={handleSubmit}>
-          <div className="employer-job-editor-header">
-            <div>
-              <p className="section-label">Listing Editor</p>
-              <h2>{editingJobId ? "Update listing" : "Create a new listing"}</h2>
+    <>
+      <div className={`employer-management-grid${showEditor ? "" : " employer-management-grid-single"}`}>
+        {showEditor && (
+          <form className="employer-job-editor" onSubmit={handleSubmit}>
+            <div className="employer-job-editor-header">
+              <div>
+                <p className="section-label">Listing Editor</p>
+                <h2>{editingJobId ? "Update listing" : "Create a new listing"}</h2>
+              </div>
+              {editingJobId && (
+                <button
+                  type="button"
+                  className="employer-job-secondary-button"
+                  onClick={cancelEdit}
+                  disabled={isSubmitting}
+                >
+                  Cancel Edit
+                </button>
+              )}
             </div>
-            {editingJobId && (
+
+            {dashboardStatus.message && (
+              <div className={`employer-job-status employer-job-status-${dashboardStatus.type}`}>
+                {dashboardStatus.message}
+              </div>
+            )}
+
+            <div className="employer-job-form-grid">
+              <label className="employer-job-field employer-job-field-wide">
+                <span>Title</span>
+                <input
+                  className={getFieldClass(fieldErrors, "title")}
+                  name="title"
+                  type="text"
+                  value={formData.title}
+                  onChange={handleFormChange}
+                  placeholder="Senior Frontend Engineer"
+                />
+                {fieldErrors.title && <p className="employer-job-field-error">{fieldErrors.title}</p>}
+              </label>
+
+              <label className="employer-job-field">
+                <span>Category</span>
+                <input
+                  className={getFieldClass(fieldErrors, "category")}
+                  name="category"
+                  type="text"
+                  value={formData.category}
+                  onChange={handleFormChange}
+                  placeholder="Engineering"
+                />
+                {fieldErrors.category && <p className="employer-job-field-error">{fieldErrors.category}</p>}
+              </label>
+
+              <label className="employer-job-field">
+                <span>Country</span>
+                <input
+                  className={getFieldClass(fieldErrors, "country")}
+                  name="country"
+                  type="text"
+                  value={formData.country}
+                  onChange={handleFormChange}
+                  placeholder="Canada"
+                />
+                {fieldErrors.country && <p className="employer-job-field-error">{fieldErrors.country}</p>}
+              </label>
+
+              <label className="employer-job-field">
+                <span>Salary</span>
+                <input
+                  className={getFieldClass(fieldErrors, "salary")}
+                  name="salary"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.salary}
+                  onChange={handleFormChange}
+                  placeholder="85000"
+                />
+                {fieldErrors.salary && <p className="employer-job-field-error">{fieldErrors.salary}</p>}
+              </label>
+
+              <label className="employer-job-field">
+                <span>Currency</span>
+                <input
+                  className={getFieldClass(fieldErrors, "currency")}
+                  name="currency"
+                  type="text"
+                  value={formData.currency}
+                  onChange={handleFormChange}
+                  placeholder="USD"
+                  maxLength={10}
+                />
+                {fieldErrors.currency && <p className="employer-job-field-error">{fieldErrors.currency}</p>}
+              </label>
+            </div>
+
+            <div className="employer-job-editor-actions">
               <button
-                type="button"
-                className="employer-job-secondary-button"
-                onClick={cancelEdit}
+                type="submit"
+                className="hero-button hero-button-primary employer-job-submit"
                 disabled={isSubmitting}
               >
-                Cancel Edit
+                {isSubmitting
+                  ? editingJobId
+                    ? "Saving..."
+                    : "Creating..."
+                  : editingJobId
+                  ? "Save Changes"
+                  : "Create Job"}
               </button>
-            )}
+            </div>
+          </form>
+        )}
+
+        <div className="employer-job-list-shell">
+          <div className="employer-job-list-header">
+            <div>
+              <p className="section-label">Managed Listings</p>
+              <h2>Review and maintain live openings</h2>
+            </div>
+            <p className="employer-job-list-summary">
+              Page {result.pagination.page} of {Math.max(totalPages, 1)}
+            </p>
           </div>
 
-          {dashboardStatus.message && (
-            <div className={`employer-job-status employer-job-status-${dashboardStatus.type}`}>
-              {dashboardStatus.message}
+          <div className="employer-job-toolbar">
+            <label className="employer-job-toolbar-field employer-job-toolbar-search">
+              <span>Search</span>
+              <input
+                className="employer-job-input"
+                type="search"
+                value={searchInput}
+                onChange={(event) => {
+                  clearStatuses();
+                  setSearchInput(event.target.value);
+                }}
+                placeholder="Search titles, categories, or countries"
+              />
+            </label>
+
+            <label className="employer-job-toolbar-field">
+              <span>Sort by</span>
+              <select
+                className="employer-job-input"
+                value={query.sortBy}
+                onChange={(event) => updateQuery({ sortBy: event.target.value, page: 1 })}
+              >
+                <option value="title">Title</option>
+                <option value="category">Category</option>
+                <option value="country">Country</option>
+                <option value="salary">Salary</option>
+                <option value="currency">Currency</option>
+              </select>
+            </label>
+
+            <label className="employer-job-toolbar-field">
+              <span>Order</span>
+              <select
+                className="employer-job-input"
+                value={query.sortOrder}
+                onChange={(event) => updateQuery({ sortOrder: event.target.value, page: 1 })}
+              >
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
+            </label>
+
+            <label className="employer-job-toolbar-field">
+              <span>Per page</span>
+              <select
+                className="employer-job-input"
+                value={query.limit}
+                onChange={(event) => updateQuery({ limit: Number(event.target.value), page: 1 })}
+              >
+                <option value={6}>6</option>
+                <option value={12}>12</option>
+                <option value={24}>24</option>
+              </select>
+            </label>
+          </div>
+
+          {(resourceError || error) && (
+            <div className="employer-job-status employer-job-status-error">
+              {resourceError || error}
             </div>
           )}
 
-          <div className="employer-job-form-grid">
-            <label className="employer-job-field employer-job-field-wide">
-              <span>Title</span>
-              <input
-                className={getFieldClass(fieldErrors, "title")}
-                name="title"
-                type="text"
-                value={formData.title}
-                onChange={handleFormChange}
-                placeholder="Senior Frontend Engineer"
-              />
-              {fieldErrors.title && <p className="employer-job-field-error">{fieldErrors.title}</p>}
-            </label>
+          {isLoadingJobs ? (
+            <p className="page-status employer-page-status">Loading listings...</p>
+          ) : managedJobs.length === 0 ? (
+            <p className="page-status employer-page-status">
+              No listings matched the current view. Try adjusting your filters or search.
+            </p>
+          ) : (
+            <div className="employer-job-list">
+              {managedJobs.map((job) => (
+                <ListingCard
+                  key={job.id}
+                  job={job}
+                  isEditing={editingJobId === job.id}
+                  isDeleting={pendingDeleteId === job.id}
+                  onEdit={startEdit}
+                  onDelete={handleDelete}
+                  canViewApplicants={canViewApplicants}
+                  onViewApplicants={setViewingApplicantsJob}
+                />
+              ))}
+            </div>
+          )}
 
-            <label className="employer-job-field">
-              <span>Category</span>
-              <input
-                className={getFieldClass(fieldErrors, "category")}
-                name="category"
-                type="text"
-                value={formData.category}
-                onChange={handleFormChange}
-                placeholder="Engineering"
-              />
-              {fieldErrors.category && <p className="employer-job-field-error">{fieldErrors.category}</p>}
-            </label>
-
-            <label className="employer-job-field">
-              <span>Country</span>
-              <input
-                className={getFieldClass(fieldErrors, "country")}
-                name="country"
-                type="text"
-                value={formData.country}
-                onChange={handleFormChange}
-                placeholder="Canada"
-              />
-              {fieldErrors.country && <p className="employer-job-field-error">{fieldErrors.country}</p>}
-            </label>
-
-            <label className="employer-job-field">
-              <span>Salary</span>
-              <input
-                className={getFieldClass(fieldErrors, "salary")}
-                name="salary"
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.salary}
-                onChange={handleFormChange}
-                placeholder="85000"
-              />
-              {fieldErrors.salary && <p className="employer-job-field-error">{fieldErrors.salary}</p>}
-            </label>
-
-            <label className="employer-job-field">
-              <span>Currency</span>
-              <input
-                className={getFieldClass(fieldErrors, "currency")}
-                name="currency"
-                type="text"
-                value={formData.currency}
-                onChange={handleFormChange}
-                placeholder="USD"
-                maxLength={10}
-              />
-              {fieldErrors.currency && <p className="employer-job-field-error">{fieldErrors.currency}</p>}
-            </label>
-          </div>
-
-          <div className="employer-job-editor-actions">
+          <div className="employer-job-pagination">
             <button
-              type="submit"
-              className="hero-button hero-button-primary employer-job-submit"
-              disabled={isSubmitting}
+              type="button"
+              className="employer-job-secondary-button"
+              onClick={() => updateQuery({ page: query.page - 1 })}
+              disabled={!canGoPrevious || isLoadingJobs}
             >
-              {isSubmitting
-                ? editingJobId
-                  ? "Saving..."
-                  : "Creating..."
-                : editingJobId
-                ? "Save Changes"
-                : "Create Job"}
+              Previous
+            </button>
+            <button
+              type="button"
+              className="employer-job-secondary-button"
+              onClick={() => updateQuery({ page: query.page + 1 })}
+              disabled={!canGoNext || isLoadingJobs}
+            >
+              Next
             </button>
           </div>
-        </form>
-      )}
-
-      <div className="employer-job-list-shell">
-        <div className="employer-job-list-header">
-          <div>
-            <p className="section-label">Managed Listings</p>
-            <h2>Review and maintain live openings</h2>
-          </div>
-          <p className="employer-job-list-summary">
-            Page {result.pagination.page} of {Math.max(totalPages, 1)}
-          </p>
-        </div>
-
-        <div className="employer-job-toolbar">
-          <label className="employer-job-toolbar-field employer-job-toolbar-search">
-            <span>Search</span>
-            <input
-              className="employer-job-input"
-              type="search"
-              value={searchInput}
-              onChange={(event) => {
-                clearStatuses();
-                setSearchInput(event.target.value);
-              }}
-              placeholder="Search titles, categories, or countries"
-            />
-          </label>
-
-          <label className="employer-job-toolbar-field">
-            <span>Sort by</span>
-            <select
-              className="employer-job-input"
-              value={query.sortBy}
-              onChange={(event) => updateQuery({ sortBy: event.target.value, page: 1 })}
-            >
-              <option value="title">Title</option>
-              <option value="category">Category</option>
-              <option value="country">Country</option>
-              <option value="salary">Salary</option>
-              <option value="currency">Currency</option>
-            </select>
-          </label>
-
-          <label className="employer-job-toolbar-field">
-            <span>Order</span>
-            <select
-              className="employer-job-input"
-              value={query.sortOrder}
-              onChange={(event) => updateQuery({ sortOrder: event.target.value, page: 1 })}
-            >
-              <option value="asc">Ascending</option>
-              <option value="desc">Descending</option>
-            </select>
-          </label>
-
-          <label className="employer-job-toolbar-field">
-            <span>Per page</span>
-            <select
-              className="employer-job-input"
-              value={query.limit}
-              onChange={(event) => updateQuery({ limit: Number(event.target.value), page: 1 })}
-            >
-              <option value={6}>6</option>
-              <option value={12}>12</option>
-              <option value={24}>24</option>
-            </select>
-          </label>
-        </div>
-
-        {(resourceError || error) && (
-          <div className='employer-job-status employer-job-status-error'>
-            {resourceError || error}
-          </div>
-        )}
-
-        {isLoadingJobs ? (
-          <p className='page-status employer-page-status'>Loading listings...</p>
-        ) : managedJobs.length === 0 ? (
-          <p className='page-status employer-page-status'>
-            No listings matched the current view. Try adjusting your filters or search.
-          </p>
-        ) : (
-          <div className='employer-job-list'>
-            {managedJobs.map((job) => (
-              <ListingCard
-                key={job.id}
-                job={job}
-                isEditing={editingJobId === job.id}
-                isDeleting={pendingDeleteId === job.id}
-                onEdit={startEdit}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
-        )}
-
-        <div className='employer-job-pagination'>
-          <button
-            type='button'
-            className='employer-job-secondary-button'
-            onClick={() => updateQuery({ page: query.page - 1 })}
-            disabled={!canGoPrevious || isLoadingJobs}
-          >
-            Previous
-          </button>
-          <button
-            type='button'
-            className='employer-job-secondary-button'
-            onClick={() => updateQuery({ page: query.page + 1 })}
-            disabled={!canGoNext || isLoadingJobs}
-          >
-            Next
-          </button>
         </div>
       </div>
-    </div>
+
+      {viewingApplicantsJob && fetchApplicants && (
+        <ApplicantsModal
+          job={viewingApplicantsJob}
+          onClose={() => setViewingApplicantsJob(null)}
+          fetchApplicants={fetchApplicants}
+        />
+      )}
+    </>
   );
 }
 

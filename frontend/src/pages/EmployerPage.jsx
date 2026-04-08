@@ -5,11 +5,13 @@ import { useDebouncedQueryInput } from "../hooks/useDebouncedQueryInput";
 import { usePaginatedResource } from "../hooks/usePaginatedResource";
 import { useJobStream } from "../jobs/useJobStream";
 import JobListPanel from "../components/JobListPanel";
+import { useCallback } from "react";
 import {
   createEmployerJob,
   deleteEmployerJob,
   fetchEmployerJobs,
   updateEmployerJob,
+  fetchJobApplicants,
 } from "../lib/jobsApi";
 import ApplicantsModal from "../components/ApplicantsModal";
 import { routePaths } from "../routing/routes";
@@ -642,6 +644,7 @@ function EmployerPage() {
         <ApplicantsModal
           job={viewingApplicantsJob}
           onClose={() => setViewingApplicantsJob(null)}
+          fetchApplicants={fetchJobApplicants}
         />
       )}
     </main>
