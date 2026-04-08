@@ -18,11 +18,9 @@ function JobSeekerPage() {
       <section className="job-seeker-hero" id="job-seeker">
         <div className="job-seeker-hero-copy">
           <p className="hero-eyebrow">Job Seeker Dashboard</p>
-          <h1>Keep your search moving with fresh opportunities.</h1>
+          <h1>Browse open positions.</h1>
           <p className="hero-copy">
-            Browse live roles from the public board and keep your profile up to
-            date. Saved-job and application totals are intentionally omitted
-            until those features are backed by real data.
+            Browse live job listings and keep your profile up to date.
           </p>
 
           <div className="hero-actions">
@@ -33,20 +31,16 @@ function JobSeekerPage() {
         </div>
 
         <aside className="job-seeker-profile-preview" id="job-seeker-profile">
-          <p className="job-seeker-profile-label">Profile</p>
-          <h2>Current seeker tools</h2>
-          <p>
-            This dashboard keeps the live job board and your profile within
-            reach without inventing fake activity counts.
-          </p>
+          <p className="job-seeker-profile-label">Quick Access</p>
+          <h2>Your Tools</h2>
           <div className="job-seeker-profile-stats">
             <div>
               <strong>Profile</strong>
-              <span>Update your seeker profile and visibility settings.</span>
+              <span>Update your profile and visibility settings.</span>
             </div>
             <div>
-              <strong>Live jobs</strong>
-              <span>The listings below come directly from the real job board.</span>
+              <strong>Live Jobs</strong>
+              <span>Browse open positions below.</span>
             </div>
           </div>
         </aside>
