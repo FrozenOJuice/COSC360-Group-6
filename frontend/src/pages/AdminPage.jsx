@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import AdminUsersPanel from "../components/admin/AdminUsersPanel";
 import JobListPanel from "../components/JobListPanel";
-import { routePaths, withHash } from "../routing/routes";
+import { routePaths, withHash, getAdminProfilePath } from "../routing/routes";
 import {
   updateAdminJob,
   deleteAdminJob,
@@ -65,6 +65,7 @@ function AdminPage() {
           canCreate={false}
           canViewApplicants={true}
           fetchApplicants={fetchAdminJobApplicants}
+          getApplicantProfilePath={(userId) => getAdminProfilePath("seeker", userId)}
         />
       </section>
     </main>

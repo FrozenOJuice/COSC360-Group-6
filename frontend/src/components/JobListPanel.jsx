@@ -192,6 +192,7 @@ function JobListPanel({
   canCreate = true,
   canViewApplicants = false,
   fetchApplicants = null,
+  getApplicantProfilePath = null,
   onTotalCount,
 }) {
   const [formData, setFormData] = useState(INITIAL_FORM);
@@ -601,6 +602,7 @@ function JobListPanel({
           job={viewingApplicantsJob}
           onClose={() => setViewingApplicantsJob(null)}
           fetchApplicants={fetchApplicants}
+          getProfilePath={getApplicantProfilePath}
         />
       )}
     </>

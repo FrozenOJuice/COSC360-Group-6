@@ -1,15 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchJobApplicants } from "../lib/jobsApi";
 import { getJobSeekerProfilePath } from "../routing/routes";
 
-function ApplicantRow({ applicant }) {
-  const navigate = useNavigate();
+function ApplicantRow({ applicant, onViewProfile }) {
   const [open, setOpen] = useState(false);
-
-  function onViewProfile(userId) {
-    navigate(getJobSeekerProfilePath(userId));
-  }
 
   return (
     <li className="applicant-row">
@@ -46,10 +40,19 @@ function ApplicantRow({ applicant }) {
   );
 }
 
-function ApplicantsModal({ job, onClose, fetchApplicants }) {
+function ApplicantsModal({ job, onClose, fetchApplicants, getProfilePath }) {
   const [applicants, setApplicants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  function onViewProfile(userId) {
+    const path = typeof getProfilePath === "function"
+      ? getProfilePath(userId)
+      : getJobSeekerProfilePath(userId);
+
+    navigate(path);
+  }
 
   useEffect(() => {
     let isActive = true;
@@ -107,7 +110,11 @@ function ApplicantsModal({ job, onClose, fetchApplicants }) {
           {!loading && !error && applicants.length > 0 && (
             <ul className="applicants-list">
               {applicants.map((applicant) => (
-                <ApplicantRow key={applicant.id} applicant={applicant} />
+                <ApplicantRow
+                  key={applicant.id}
+                  applicant={applicant}
+                  onViewProfile={onViewProfile}
+                />
               ))}
             </ul>
           )}
