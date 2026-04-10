@@ -9,6 +9,9 @@ jest.mock('../../frontend/src/auth/useAuth.js', () => ({
 jest.mock('../../frontend/src/lib/seekerProfileApi.js', () => ({
   uploadCurrentSeekerProfilePicture: jest.fn().mockResolvedValue({ ok: true }),
 }));
+jest.mock('../../frontend/src/lib/employerProfileApi.js', () => ({
+  uploadCurrentEmployerLogo: jest.fn().mockResolvedValue({ ok: true }),
+}));
 jest.mock('../../frontend/src/profile/ProfileMediaPanel.jsx', () => ({
   __esModule: true,
   default: function MockProfileMediaPanel({ inputLabel }) {
@@ -71,17 +74,17 @@ describe('RegisterForm — role switching', () => {
     expect(screen.getByText(/company name/i)).toBeInTheDocument();
   });
 
-  it('hides the profile picture upload when Employer is selected', async () => {
+  it('changes the profile media panel label to "Company Logo" when Employer is selected', async () => {
     renderRegisterForm();
 
-    expect(screen.getByTestId('profile-media-panel')).toBeInTheDocument();
+    expect(screen.getByTestId('profile-media-panel')).toHaveTextContent('Profile Picture');
 
     await userEvent.selectOptions(
       screen.getByRole('combobox', { name: /account type/i }),
       'employer'
     );
 
-    expect(screen.queryByTestId('profile-media-panel')).not.toBeInTheDocument();
+    expect(screen.getByTestId('profile-media-panel')).toHaveTextContent('Company Logo');
   });
 });
 
