@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../auth/useAuth";
 import ProfileMediaPanel from "../../profile/ProfileMediaPanel";
 import { uploadCurrentSeekerProfilePicture } from "../../lib/seekerProfileApi";
+import { uploadCurrentEmployerLogo } from "../../lib/employerProfileApi";
 
 function RegisterForm() {
   const { register } = useAuth();
@@ -32,10 +33,6 @@ function RegisterForm() {
       [name]: value,
     }));
 
-    if (name === "role" && value === "employer") {
-      setProfilePictureFile(null);
-      setProfilePicturePreview("/default-profile.png");
-    }
   }
 
   function handleProfilePictureUpload(event) {
@@ -175,17 +172,19 @@ function RegisterForm() {
         return;
       }
 
-      if (profilePictureFile && !isEmployer) {
-        const uploadResult = await uploadCurrentSeekerProfilePicture(profilePictureFile);
+      if (profilePictureFile) {
+        const uploadResult = isEmployer
+          ? await uploadCurrentEmployerLogo(profilePictureFile)
+          : await uploadCurrentSeekerProfilePicture(profilePictureFile);
 
         if (!uploadResult.ok) {
           setStatus({
             type: "error",
-            message: "Account created, but profile picture upload failed.",
+            message: "Account created, but image upload failed.",
             details: uploadResult.error?.details || [
               {
                 field: "profilePicture",
-                message: uploadResult.error?.message || "Failed to upload profile picture",
+                message: uploadResult.error?.message || "Failed to upload image",
               },
             ],
           });
@@ -294,21 +293,19 @@ function RegisterForm() {
         />
       </label>
 
-      {isEmployer ? null : (
-        <ProfileMediaPanel
-          imageSrc={profilePicturePreview}
-          imageAlt="Profile Picture"
-          isEditing
-          inputLabel="Profile Picture"
-          inputClassName="profile-file-input"
-          accept="image/jpeg,image/png,image/gif,image/webp"
-          onFileChange={handleProfilePictureUpload}
-          isUploading={isSubmitting}
-          hasCustomImage={profilePictureFile !== null}
-          onRemove={handleRemoveProfilePicture}
-          removeLabel="Remove picture"
-        />
-      )}
+      <ProfileMediaPanel
+        imageSrc={profilePicturePreview}
+        imageAlt={isEmployer ? "Company Logo" : "Profile Picture"}
+        isEditing
+        inputLabel={isEmployer ? "Company Logo" : "Profile Picture"}
+        inputClassName="profile-file-input"
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        onFileChange={handleProfilePictureUpload}
+        isUploading={isSubmitting}
+        hasCustomImage={profilePictureFile !== null}
+        onRemove={handleRemoveProfilePicture}
+        removeLabel={isEmployer ? "Remove logo" : "Remove picture"}
+      />
 
       {status.message && (
         <div className={`auth-status auth-status-${status.type}`}>
