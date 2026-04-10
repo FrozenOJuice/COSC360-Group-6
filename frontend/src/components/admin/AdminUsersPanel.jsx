@@ -137,7 +137,7 @@ function AdminUsersPanel() {
               clearError();
               setSearchInput(event.target.value);
             }}
-            placeholder="Search by name or email"
+            placeholder="Search by name, email, or post"
           />
         </label>
 

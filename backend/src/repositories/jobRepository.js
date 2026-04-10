@@ -58,3 +58,12 @@ export async function updateJobById(jobId, updateData) {
 export async function deleteJobById(jobId) {
     return Job.findByIdAndDelete(jobId).exec();
 }
+
+export async function findEmployerIdsByTitleOrCategory(searchRegex) {
+    return Job.distinct("employerUserId", {
+        $or: [
+            { title: searchRegex },
+            { category: searchRegex },
+        ],
+    }).exec();
+}

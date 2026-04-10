@@ -5,6 +5,7 @@ import {
     listUsers,
     updateUserStatus,
 } from "../repositories/userRepository.js";
+import { findEmployerIdsByTitleOrCategory } from "../repositories/jobRepository.js";
 import { toUserDto } from "../dto/userDto.js";
 import { buildSearchRegex, normalizeTextSearch, toPositiveInt } from "./queryUtils.js";
 import { appError } from "../utils/appError.js";
@@ -33,6 +34,9 @@ function buildUserFilters(options = {}) {
             { email: searchRegex },
             { username: searchRegex },
         ];
+        if (Array.isArray(options.employerIds) && options.employerIds.length > 0) {
+            filters.$or.push({ _id: { $in: options.employerIds } });
+        }
     }
 
     if (role) {
@@ -54,8 +58,14 @@ function buildUserFilters(options = {}) {
 }
 
 export async function listAdminUsers(options = {}) {
-    const { filters, normalizedFilters } = buildUserFilters(options);
-    const { search, role, status } = normalizedFilters;
+    const search = normalizeTextSearch(options.search);
+    const searchRegex = buildSearchRegex(search);
+    const employerIds = searchRegex
+        ? await findEmployerIdsByTitleOrCategory(searchRegex)
+        : [];
+
+    const { filters, normalizedFilters } = buildUserFilters({ ...options, employerIds });
+    const { role, status } = normalizedFilters;
     const page = toPositiveInt(options.page, 1);
     const limit = toPositiveInt(options.limit, 25);
     const sortBy = SORT_FIELDS.has(options.sortBy) ? options.sortBy : "name";
